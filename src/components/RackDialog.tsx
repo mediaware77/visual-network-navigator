@@ -33,7 +33,7 @@ interface RackDialogProps {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "Rack name is required"),
+  name: z.string().min(1, "O nome do rack é obrigatório"),
   location: z.string().optional(),
   description: z.string().optional(),
 });
@@ -74,18 +74,19 @@ export function RackDialog({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isEditing && existingRack) {
-        updateRack(existingRack.id, values);
-        toast.success("Rack updated successfully");
+        await updateRack(existingRack.id, values); // Adicionar await
+        toast.success("Rack atualizado com sucesso");
       } else {
-        createRack(values);
-        toast.success("Rack created successfully");
+        // Usar asserção de tipo para garantir que 'name' está presente
+        await createRack(values as Omit<Rack, 'id'>); 
+        toast.success("Rack criado com sucesso");
       }
       
       onOpenChange(false);
       onSave();
     } catch (error) {
       console.error("Error saving rack:", error);
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} rack`);
+      toast.error(`Falha ao ${isEditing ? 'atualizar' : 'criar'} rack`);
     }
   };
   
@@ -93,11 +94,11 @@ export function RackDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Rack" : "Create Rack"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Editar Rack" : "Criar Rack"}</DialogTitle>
           <DialogDescription>
-            {isEditing 
-              ? "Update the details for this rack." 
-              : "Enter the details for a new rack."}
+            {isEditing
+              ? "Atualize os detalhes deste rack."
+              : "Insira os detalhes para um novo rack."}
           </DialogDescription>
         </DialogHeader>
         
@@ -108,9 +109,9 @@ export function RackDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Main Server Rack" {...field} />
+                    <Input placeholder="Rack Principal de Servidores" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,9 +123,9 @@ export function RackDialog({
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Localização</FormLabel>
                   <FormControl>
-                    <Input placeholder="Data Center Floor 1" {...field} />
+                    <Input placeholder="Data Center Piso 1" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,10 +137,10 @@ export function RackDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Descrição</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Optional description of this rack" 
+                      placeholder="Descrição opcional deste rack"
                       {...field} 
                     />
                   </FormControl>
@@ -150,7 +151,7 @@ export function RackDialog({
             
             <DialogFooter>
               <Button type="submit">
-                {isEditing ? "Update" : "Create"}
+                {isEditing ? "Atualizar" : "Criar"}
               </Button>
             </DialogFooter>
           </form>

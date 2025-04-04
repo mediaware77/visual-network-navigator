@@ -14,59 +14,49 @@ import {
   SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { 
-  Server, 
-  Network, 
-  Cable, 
-  ServerCog, 
-  Search, 
-  PanelLeft, 
-  Settings,
-  Database,
-  Activity
-} from "lucide-react";
+// Remix icons are now imported via CSS in main.tsx
 
 export function AppSidebar() {
   const location = useLocation();
   
   const navItems = [
     {
-      title: "Dashboard",
+      title: "Painel",
       path: "/",
-      icon: Activity,
+      iconClass: "ri-pulse-line",
     },
     {
-      title: "Racks",
+      title: "Racks", // Mantido, termo técnico comum
       path: "/racks",
-      icon: Server,
+      iconClass: "ri-server-line",
     },
     {
-      title: "Equipment",
+      title: "Equipamentos",
       path: "/equipment",
-      icon: ServerCog,
+      iconClass: "ri-hard-drive-2-line",
     },
     {
-      title: "Port Mappings",
+      title: "Mapeamento de Portas",
       path: "/port-mappings",
-      icon: Cable,
+      iconClass: "ri-route-line",
     },
     {
-      title: "Search",
+      title: "Busca",
       path: "/search",
-      icon: Search,
+      iconClass: "ri-search-line",
     },
   ];
   
   const toolItems = [
     {
-      title: "Database",
+      title: "Banco de Dados",
       path: "/database",
-      icon: Database,
+      iconClass: "ri-database-2-line",
     },
     {
-      title: "Settings",
+      title: "Configurações",
       path: "/settings",
-      icon: Settings,
+      iconClass: "ri-settings-3-line",
     },
   ];
   
@@ -74,27 +64,26 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-4 py-3">
-          <Network size={24} className="text-sidebar-primary" />
+          <i className="ri-router-line w-6 h-6 text-sidebar-primary"></i>
           <span className="font-medium text-lg text-sidebar-foreground">
-            Visual Network Mapper
+            Mapeador de Rede Visual
           </span>
-          <SidebarTrigger className="ml-auto" />
         </div>
       </SidebarHeader>
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     asChild
-                    active={location.pathname === item.path}
+                    isActive={location.pathname === item.path}
                   >
                     <Link to={item.path} className="flex items-center gap-2">
-                      <item.icon size={18} />
+                      <i className={`${item.iconClass} w-[18px] h-[18px]`}></i>
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -105,17 +94,17 @@ export function AppSidebar() {
         </SidebarGroup>
         
         <SidebarGroup>
-          <SidebarGroupLabel>Tools</SidebarGroupLabel>
+          <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {toolItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     asChild
-                    active={location.pathname === item.path}
+                    isActive={location.pathname === item.path}
                   >
                     <Link to={item.path} className="flex items-center gap-2">
-                      <item.icon size={18} />
+                      <i className={`${item.iconClass} w-[18px] h-[18px]`}></i>
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -128,7 +117,7 @@ export function AppSidebar() {
       
       <SidebarFooter className="border-t border-sidebar-border px-4 py-2">
         <div className="text-xs text-sidebar-foreground/70">
-          Visual Network Mapper v1.0
+          Mapeador de Rede Visual v1.0
         </div>
       </SidebarFooter>
     </Sidebar>

@@ -1,598 +1,25 @@
-
-import * as SQLite from "sql.js";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database, Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
-// SQL.js needs to fetch its wasm file, so we'll use a config object
-// to specify where to find it.
-const sqlConfig = {
-  locateFile: (file: string) => `https://sql.js.org/dist/${file}`
-};
-
-// Initialize the database
-let SQL: SQLite.SqlJsStatic;
-let db: SQLite.Database | null = null;
-
-// Initialize SQL.js
-export const initDatabase = async () => {
-  try {
-    SQL = await SQLite.default(sqlConfig);
-    db = new SQL.Database();
-    
-    // Create tables if they don't exist
-    createTables();
-    seedDemoData();
-    
-    return db;
-  } catch (err) {
-    console.error("Failed to initialize database:", err);
-    toast.error("Failed to initialize database. Please refresh the page.");
-    return null;
-  }
-};
-
-// Create the database schema
-const createTables = () => {
-  if (!db) return;
-  
-  // Create Racks table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS racks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL UNIQUE,
-      location TEXT,
-      description TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-  
-  // Create Equipments table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS equipments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      rack_id INTEGER NOT NULL,
-      equipment_type TEXT NOT NULL CHECK(equipment_type IN ('PATCH_PANEL', 'SWITCH')),
-      identifier TEXT NOT NULL,
-      model TEXT,
-      port_count INTEGER,
-      u_position INTEGER,
-      description TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (rack_id) REFERENCES racks(id) ON DELETE CASCADE,
-      UNIQUE(rack_id, identifier)
-    )
-  `);
-  
-  // Create Port Mappings table
-  db.run(`
-    CREATE TABLE IF NOT EXISTS port_mappings (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      patch_panel_id INTEGER NOT NULL,
-      physical_port_number INTEGER NOT NULL,
-      logical_point_identifier TEXT NOT NULL UNIQUE,
-      description TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (patch_panel_id) REFERENCES equipments(id) ON DELETE CASCADE,
-      UNIQUE(patch_panel_id, physical_port_number)
-    )
-  `);
-  
-  // Create indexes
-  db.run(`CREATE INDEX IF NOT EXISTS idx_equipments_rack_id ON equipments(rack_id)`);
-  db.run(`CREATE INDEX IF NOT EXISTS idx_port_mappings_patch_panel ON port_mappings(patch_panel_id)`);
-};
-
-// Seed demo data
-const seedDemoData = () => {
-  if (!db) return;
-  
-  // First, check if we already have data
-  const rackCount = db.exec("SELECT COUNT(*) FROM racks")[0].values[0][0];
-  
-  if (rackCount > 0) {
-    return; // Already seeded
-  }
-  
-  // Add demo racks
-  db.run(`
-    INSERT INTO racks (name, location, description) VALUES 
-    ('Rack-01', 'Data Center Floor 1', 'Main infrastructure rack'),
-    ('Rack-02', 'Data Center Floor 1', 'Server rack'),
-    ('Rack-03', 'Office Floor 2', 'Network distribution rack')
-  `);
-  
-  // Add equipment to the racks
-  db.run(`
-    INSERT INTO equipments (rack_id, equipment_type, identifier, model, port_count, u_position, description) VALUES 
-    (1, 'PATCH_PANEL', 'PP-01', 'CAT6 48-Port', 48, 1, 'Front patch panel'),
-    (1, 'SWITCH', 'SW-01', 'Cisco 3850', 48, 2, 'Core switch'),
-    (1, 'PATCH_PANEL', 'PP-02', 'CAT6 24-Port', 24, 3, 'Secondary patch panel'),
-    (2, 'PATCH_PANEL', 'PP-01', 'CAT6 48-Port', 48, 1, 'Server connections'),
-    (2, 'SWITCH', 'SW-01', 'HPE 5900', 48, 2, 'Server access switch'),
-    (3, 'PATCH_PANEL', 'PP-01', 'CAT6 24-Port', 24, 1, 'Office connections')
-  `);
-  
-  // Add some port mappings
-  // For Rack-01, PP-01
-  for (let i = 1; i <= 20; i++) {
-    db.run(`
-      INSERT INTO port_mappings (patch_panel_id, physical_port_number, logical_point_identifier, description)
-      VALUES (1, ${i}, '10${i}', 'Office workstation ${i}')
-    `);
-  }
-  
-  // For Rack-03, PP-01
-  for (let i = 1; i <= 15; i++) {
-    db.run(`
-      INSERT INTO port_mappings (patch_panel_id, physical_port_number, logical_point_identifier, description)
-      VALUES (6, ${i}, '30${i}', 'Floor 2 workstation ${i}')
-    `);
-  }
-};
-
-// Database operation functions
-
-// Racks
-export const getRacks = (): Rack[] => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec("SELECT id, name, location, description FROM racks ORDER BY name");
-  
-  if (result.length === 0) return [];
-  
-  const columns = result[0].columns;
-  return result[0].values.map(row => {
-    const rack: any = {};
-    columns.forEach((col, i) => {
-      rack[col] = row[i];
-    });
-    return rack as Rack;
-  });
-};
-
-export const getRackById = (id: number): Rack | null => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT id, name, location, description 
-    FROM racks 
-    WHERE id = ${id}
-  `);
-  
-  if (result.length === 0 || result[0].values.length === 0) return null;
-  
-  const columns = result[0].columns;
-  const row = result[0].values[0];
-  
-  const rack: any = {};
-  columns.forEach((col, i) => {
-    rack[col] = row[i];
-  });
-  
-  return rack as Rack;
-};
-
-export const createRack = (rack: Omit<Rack, 'id'>): number => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`
-      INSERT INTO racks (name, location, description)
-      VALUES (?, ?, ?)
-    `, [rack.name, rack.location || null, rack.description || null]);
-    
-    const result = db.exec("SELECT last_insert_rowid()");
-    const id = result[0].values[0][0] as number;
-    
-    return id;
-  } catch (err) {
-    console.error("Error creating rack:", err);
-    throw err;
-  }
-};
-
-export const updateRack = (id: number, rack: Partial<Rack>): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const updates = [];
-  const values = [];
-  
-  if (rack.name !== undefined) {
-    updates.push("name = ?");
-    values.push(rack.name);
-  }
-  
-  if (rack.location !== undefined) {
-    updates.push("location = ?");
-    values.push(rack.location);
-  }
-  
-  if (rack.description !== undefined) {
-    updates.push("description = ?");
-    values.push(rack.description);
-  }
-  
-  if (updates.length === 0) return;
-  
-  updates.push("updated_at = CURRENT_TIMESTAMP");
-  
-  try {
-    db.run(`
-      UPDATE racks
-      SET ${updates.join(", ")}
-      WHERE id = ?
-    `, [...values, id]);
-  } catch (err) {
-    console.error("Error updating rack:", err);
-    throw err;
-  }
-};
-
-export const deleteRack = (id: number): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`DELETE FROM racks WHERE id = ?`, [id]);
-  } catch (err) {
-    console.error("Error deleting rack:", err);
-    throw err;
-  }
-};
-
-// Equipment
-export const getEquipmentByRackId = (rackId: number): Equipment[] => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT id, rack_id, equipment_type, identifier, model, port_count, u_position, description
-    FROM equipments
-    WHERE rack_id = ${rackId}
-    ORDER BY u_position NULLS LAST, identifier
-  `);
-  
-  if (result.length === 0) return [];
-  
-  const columns = result[0].columns;
-  return result[0].values.map(row => {
-    const equipment: any = {};
-    columns.forEach((col, i) => {
-      equipment[col] = row[i];
-    });
-    return equipment as Equipment;
-  });
-};
-
-export const getEquipmentById = (id: number): Equipment | null => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT id, rack_id, equipment_type, identifier, model, port_count, u_position, description
-    FROM equipments
-    WHERE id = ${id}
-  `);
-  
-  if (result.length === 0 || result[0].values.length === 0) return null;
-  
-  const columns = result[0].columns;
-  const row = result[0].values[0];
-  
-  const equipment: any = {};
-  columns.forEach((col, i) => {
-    equipment[col] = row[i];
-  });
-  
-  return equipment as Equipment;
-};
-
-export const createEquipment = (equipment: Omit<Equipment, 'id'>): number => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`
-      INSERT INTO equipments (
-        rack_id, equipment_type, identifier, model, port_count, u_position, description
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [
-      equipment.rack_id,
-      equipment.equipment_type,
-      equipment.identifier,
-      equipment.model || null,
-      equipment.port_count || null,
-      equipment.u_position || null,
-      equipment.description || null
-    ]);
-    
-    const result = db.exec("SELECT last_insert_rowid()");
-    const id = result[0].values[0][0] as number;
-    
-    return id;
-  } catch (err) {
-    console.error("Error creating equipment:", err);
-    throw err;
-  }
-};
-
-export const updateEquipment = (id: number, equipment: Partial<Equipment>): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const updates = [];
-  const values = [];
-  
-  if (equipment.rack_id !== undefined) {
-    updates.push("rack_id = ?");
-    values.push(equipment.rack_id);
-  }
-  
-  if (equipment.equipment_type !== undefined) {
-    updates.push("equipment_type = ?");
-    values.push(equipment.equipment_type);
-  }
-  
-  if (equipment.identifier !== undefined) {
-    updates.push("identifier = ?");
-    values.push(equipment.identifier);
-  }
-  
-  if (equipment.model !== undefined) {
-    updates.push("model = ?");
-    values.push(equipment.model);
-  }
-  
-  if (equipment.port_count !== undefined) {
-    updates.push("port_count = ?");
-    values.push(equipment.port_count);
-  }
-  
-  if (equipment.u_position !== undefined) {
-    updates.push("u_position = ?");
-    values.push(equipment.u_position);
-  }
-  
-  if (equipment.description !== undefined) {
-    updates.push("description = ?");
-    values.push(equipment.description);
-  }
-  
-  if (updates.length === 0) return;
-  
-  updates.push("updated_at = CURRENT_TIMESTAMP");
-  
-  try {
-    db.run(`
-      UPDATE equipments
-      SET ${updates.join(", ")}
-      WHERE id = ?
-    `, [...values, id]);
-  } catch (err) {
-    console.error("Error updating equipment:", err);
-    throw err;
-  }
-};
-
-export const deleteEquipment = (id: number): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`DELETE FROM equipments WHERE id = ?`, [id]);
-  } catch (err) {
-    console.error("Error deleting equipment:", err);
-    throw err;
-  }
-};
-
-// Port Mappings
-export const getPortMappingsByPatchPanelId = (patchPanelId: number): PortMapping[] => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT id, patch_panel_id, physical_port_number, logical_point_identifier, description
-    FROM port_mappings
-    WHERE patch_panel_id = ${patchPanelId}
-    ORDER BY physical_port_number
-  `);
-  
-  if (result.length === 0) return [];
-  
-  const columns = result[0].columns;
-  return result[0].values.map(row => {
-    const mapping: any = {};
-    columns.forEach((col, i) => {
-      mapping[col] = row[i];
-    });
-    return mapping as PortMapping;
-  });
-};
-
-export const getPortMappingByLogicalPoint = (logicalPointId: string): PortMappingDetail | null => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT 
-      pm.id, 
-      pm.patch_panel_id, 
-      pm.physical_port_number, 
-      pm.logical_point_identifier, 
-      pm.description,
-      e.identifier AS panel_identifier,
-      r.id AS rack_id,
-      r.name AS rack_name
-    FROM port_mappings pm
-    JOIN equipments e ON pm.patch_panel_id = e.id
-    JOIN racks r ON e.rack_id = r.id
-    WHERE pm.logical_point_identifier = '${logicalPointId}'
-  `);
-  
-  if (result.length === 0 || result[0].values.length === 0) return null;
-  
-  const columns = result[0].columns;
-  const row = result[0].values[0];
-  
-  const mapping: any = {};
-  columns.forEach((col, i) => {
-    mapping[col] = row[i];
-  });
-  
-  return mapping as PortMappingDetail;
-};
-
-export const getPortMappingByPhysicalLocation = (
-  rackId: number, 
-  panelIdentifier: string, 
-  portNumber: number
-): PortMapping | null => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const result = db.exec(`
-    SELECT pm.id, pm.patch_panel_id, pm.physical_port_number, pm.logical_point_identifier, pm.description
-    FROM port_mappings pm
-    JOIN equipments e ON pm.patch_panel_id = e.id
-    WHERE e.rack_id = ${rackId}
-      AND e.identifier = '${panelIdentifier}'
-      AND e.equipment_type = 'PATCH_PANEL'
-      AND pm.physical_port_number = ${portNumber}
-  `);
-  
-  if (result.length === 0 || result[0].values.length === 0) return null;
-  
-  const columns = result[0].columns;
-  const row = result[0].values[0];
-  
-  const mapping: any = {};
-  columns.forEach((col, i) => {
-    mapping[col] = row[i];
-  });
-  
-  return mapping as PortMapping;
-};
-
-export const createPortMapping = (mapping: Omit<PortMapping, 'id'>): number => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`
-      INSERT INTO port_mappings (
-        patch_panel_id, physical_port_number, logical_point_identifier, description
-      )
-      VALUES (?, ?, ?, ?)
-    `, [
-      mapping.patch_panel_id,
-      mapping.physical_port_number,
-      mapping.logical_point_identifier,
-      mapping.description || null
-    ]);
-    
-    const result = db.exec("SELECT last_insert_rowid()");
-    const id = result[0].values[0][0] as number;
-    
-    return id;
-  } catch (err) {
-    console.error("Error creating port mapping:", err);
-    throw err;
-  }
-};
-
-export const updatePortMapping = (id: number, mapping: Partial<PortMapping>): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  const updates = [];
-  const values = [];
-  
-  if (mapping.patch_panel_id !== undefined) {
-    updates.push("patch_panel_id = ?");
-    values.push(mapping.patch_panel_id);
-  }
-  
-  if (mapping.physical_port_number !== undefined) {
-    updates.push("physical_port_number = ?");
-    values.push(mapping.physical_port_number);
-  }
-  
-  if (mapping.logical_point_identifier !== undefined) {
-    updates.push("logical_point_identifier = ?");
-    values.push(mapping.logical_point_identifier);
-  }
-  
-  if (mapping.description !== undefined) {
-    updates.push("description = ?");
-    values.push(mapping.description);
-  }
-  
-  if (updates.length === 0) return;
-  
-  updates.push("updated_at = CURRENT_TIMESTAMP");
-  
-  try {
-    db.run(`
-      UPDATE port_mappings
-      SET ${updates.join(", ")}
-      WHERE id = ?
-    `, [...values, id]);
-  } catch (err) {
-    console.error("Error updating port mapping:", err);
-    throw err;
-  }
-};
-
-export const deletePortMapping = (id: number): void => {
-  if (!db) throw new Error("Database not initialized");
-  
-  try {
-    db.run(`DELETE FROM port_mappings WHERE id = ?`, [id]);
-  } catch (err) {
-    console.error("Error deleting port mapping:", err);
-    throw err;
-  }
-};
-
-// Export database for potential download
-export const exportDatabase = (): Uint8Array => {
-  if (!db) throw new Error("Database not initialized");
-  return db.export();
-};
-
-// Import database from file
-export const importDatabase = (data: Uint8Array): void => {
-  try {
-    if (!SQL) throw new Error("SQL.js not initialized");
-    
-    // Close existing database if open
-    if (db) {
-      db.close();
-    }
-    
-    // Create new database from imported data
-    db = new SQL.Database(data);
-    
-    toast.success("Database imported successfully");
-  } catch (err) {
-    console.error("Error importing database:", err);
-    toast.error("Failed to import database");
-    
-    // Try to recreate the database
-    initDatabase();
-  }
-};
-
-// Types
+// Tipos locais (mantidos por enquanto para compatibilidade com a UI existente)
+// Idealmente, poderíamos usar os tipos gerados pelo Supabase diretamente ou mapeá-los.
 export interface Rack {
   id: number;
   name: string;
-  location?: string;
-  description?: string;
+  location?: string | null; // Supabase pode retornar null
+  description?: string | null; // Supabase pode retornar null
 }
 
 export interface Equipment {
   id: number;
   rack_id: number;
-  equipment_type: 'PATCH_PANEL' | 'SWITCH';
+  equipment_type: 'PATCH_PANEL' | 'SWITCH'; // O tipo Supabase é string, precisamos garantir a validação
   identifier: string;
-  model?: string;
-  port_count?: number;
-  u_position?: number;
-  description?: string;
+  model?: string | null;
+  port_count?: number | null;
+  u_position?: number | null;
+  description?: string | null;
 }
 
 export interface PortMapping {
@@ -600,7 +27,7 @@ export interface PortMapping {
   patch_panel_id: number;
   physical_port_number: number;
   logical_point_identifier: string;
-  description?: string;
+  description?: string | null;
 }
 
 export interface PortMappingDetail extends PortMapping {
@@ -608,3 +35,320 @@ export interface PortMappingDetail extends PortMapping {
   rack_id: number;
   rack_name: string;
 }
+
+// Tipos Supabase para referência rápida
+type RackRow = Tables<'racks'>;
+type EquipmentRow = Tables<'equipments'>;
+type PortMappingRow = Tables<'port_mappings'>;
+
+type RackInsert = TablesInsert<'racks'>;
+type EquipmentInsert = TablesInsert<'equipments'>;
+type PortMappingInsert = TablesInsert<'port_mappings'>;
+
+type RackUpdate = TablesUpdate<'racks'>;
+type EquipmentUpdate = TablesUpdate<'equipments'>;
+type PortMappingUpdate = TablesUpdate<'port_mappings'>;
+
+
+// --- Funções de Operação do Banco de Dados (Supabase) ---
+
+// Função auxiliar para tratamento de erros Supabase
+const handleSupabaseError = (error: any, context: string) => {
+  console.error(`Supabase error (${context}):`, error);
+  toast.error(`Database error (${context}): ${error.message}`);
+  throw new Error(`Supabase error (${context}): ${error.message}`);
+};
+
+// Racks
+export const getRacks = async (): Promise<Rack[]> => {
+  const { data, error } = await supabase
+    .from('racks')
+    .select('id, name, location, description')
+    .order('name');
+
+  if (error) handleSupabaseError(error, 'fetching racks');
+  return (data as Rack[]) || []; // Retorna array vazio se data for null
+};
+
+export const getRackById = async (id: number): Promise<Rack | null> => {
+  const { data, error } = await supabase
+    .from('racks')
+    .select('id, name, location, description')
+    .eq('id', id)
+    .single(); // Espera um único resultado ou null
+
+  if (error && error.code !== 'PGRST116') { // PGRST116: Row not found, o que é esperado
+     handleSupabaseError(error, `fetching rack ${id}`);
+  }
+  return data as Rack | null;
+};
+
+export const createRack = async (rack: Omit<Rack, 'id'>): Promise<Rack> => {
+  // Mapeia para o tipo Insert do Supabase
+  const rackInsert: RackInsert = {
+    name: rack.name,
+    location: rack.location,
+    description: rack.description,
+  };
+
+  const { data, error } = await supabase
+    .from('racks')
+    .insert(rackInsert)
+    .select('id, name, location, description')
+    .single(); // Retorna o registro criado
+
+  if (error) handleSupabaseError(error, 'creating rack');
+  if (!data) throw new Error("Failed to create rack, no data returned.");
+  return data as Rack;
+};
+
+export const updateRack = async (id: number, rackUpdate: Partial<Omit<Rack, 'id'>>): Promise<Rack> => {
+   // Mapeia para o tipo Update do Supabase
+   const rackSupabaseUpdate: RackUpdate = { ...rackUpdate };
+
+  const { data, error } = await supabase
+    .from('racks')
+    .update(rackSupabaseUpdate)
+    .eq('id', id)
+    .select('id, name, location, description')
+    .single();
+
+  if (error) handleSupabaseError(error, `updating rack ${id}`);
+  if (!data) throw new Error(`Failed to update rack ${id}, no data returned.`);
+  return data as Rack;
+};
+
+export const deleteRack = async (id: number): Promise<void> => {
+  const { error } = await supabase
+    .from('racks')
+    .delete()
+    .eq('id', id);
+
+  if (error) handleSupabaseError(error, `deleting rack ${id}`);
+};
+
+// Equipment
+export const getEquipmentByRackId = async (rackId: number): Promise<Equipment[]> => {
+  const { data, error } = await supabase
+    .from('equipments')
+    .select('id, rack_id, equipment_type, identifier, model, port_count, u_position, description')
+    .eq('rack_id', rackId)
+    .order('u_position', { nullsFirst: false }) // Equivalente a NULLS LAST
+    .order('identifier');
+
+  if (error) handleSupabaseError(error, `fetching equipment for rack ${rackId}`);
+  // Precisamos garantir que equipment_type seja 'PATCH_PANEL' ou 'SWITCH'
+  return (data as Equipment[])?.filter(eq => eq.equipment_type === 'PATCH_PANEL' || eq.equipment_type === 'SWITCH') || [];
+};
+
+export const getEquipmentById = async (id: number): Promise<Equipment | null> => {
+  const { data, error } = await supabase
+    .from('equipments')
+    .select('id, rack_id, equipment_type, identifier, model, port_count, u_position, description')
+    .eq('id', id)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+     handleSupabaseError(error, `fetching equipment ${id}`);
+  }
+  if (data && (data.equipment_type !== 'PATCH_PANEL' && data.equipment_type !== 'SWITCH')) {
+      console.warn(`Equipment ${id} has invalid type: ${data.equipment_type}`);
+      return null; // Ou lançar um erro?
+  }
+  return data as Equipment | null;
+};
+
+export const createEquipment = async (equipment: Omit<Equipment, 'id'>): Promise<Equipment> => {
+  const equipmentInsert: EquipmentInsert = {
+     ...equipment,
+     // Garante que valores opcionais sejam null se undefined
+     model: equipment.model ?? null,
+     port_count: equipment.port_count ?? null,
+     u_position: equipment.u_position ?? null,
+     description: equipment.description ?? null,
+  };
+
+  const { data, error } = await supabase
+    .from('equipments')
+    .insert(equipmentInsert)
+    .select('id, rack_id, equipment_type, identifier, model, port_count, u_position, description')
+    .single();
+
+  if (error) handleSupabaseError(error, 'creating equipment');
+  if (!data) throw new Error("Failed to create equipment, no data returned.");
+  return data as Equipment;
+};
+
+export const updateEquipment = async (id: number, equipmentUpdate: Partial<Omit<Equipment, 'id'>>): Promise<Equipment> => {
+  const equipmentSupabaseUpdate: EquipmentUpdate = { ...equipmentUpdate };
+
+  const { data, error } = await supabase
+    .from('equipments')
+    .update(equipmentSupabaseUpdate)
+    .eq('id', id)
+    .select('id, rack_id, equipment_type, identifier, model, port_count, u_position, description')
+    .single();
+
+  if (error) handleSupabaseError(error, `updating equipment ${id}`);
+   if (!data) throw new Error(`Failed to update equipment ${id}, no data returned.`);
+  return data as Equipment;
+};
+
+export const deleteEquipment = async (id: number): Promise<void> => {
+  const { error } = await supabase
+    .from('equipments')
+    .delete()
+    .eq('id', id);
+
+  if (error) handleSupabaseError(error, `deleting equipment ${id}`);
+};
+
+// Port Mappings
+export const getPortMappingsByPatchPanelId = async (patchPanelId: number): Promise<PortMapping[]> => {
+  // Primeiro, verifica se o ID pertence a um PATCH_PANEL
+  const { data: panelData, error: panelError } = await supabase
+      .from('equipments')
+      .select('id')
+      .eq('id', patchPanelId)
+      .eq('equipment_type', 'PATCH_PANEL')
+      .maybeSingle(); // Pode não encontrar
+
+  if (panelError) handleSupabaseError(panelError, `verifying patch panel ${patchPanelId}`);
+  if (!panelData) {
+      console.warn(`Attempted to get port mappings for non-patch panel ID: ${patchPanelId}`);
+      return []; // Retorna vazio se não for um patch panel
+  }
+
+  // Busca os mapeamentos
+  const { data, error } = await supabase
+    .from('port_mappings')
+    .select('id, patch_panel_id, physical_port_number, logical_point_identifier, description')
+    .eq('patch_panel_id', patchPanelId)
+    .order('physical_port_number');
+
+  if (error) handleSupabaseError(error, `fetching port mappings for panel ${patchPanelId}`);
+  return (data as PortMapping[]) || [];
+};
+
+// NOTA: getPortMappingByLogicalPoint e getPortMappingByPhysicalLocation
+// precisam ser reescritos usando JOINs ou múltiplas queries,
+// pois o Supabase JS client não suporta JOINs diretamente em `select`.
+// Uma alternativa é criar Views ou Funções RPC no Supabase.
+// Por simplicidade agora, vamos usar múltiplas queries.
+
+export const getPortMappingByLogicalPoint = async (logicalPointId: string): Promise<PortMappingDetail | null> => {
+  const { data: mappingData, error: mappingError } = await supabase
+    .from('port_mappings')
+    .select('id, patch_panel_id, physical_port_number, logical_point_identifier, description')
+    .eq('logical_point_identifier', logicalPointId)
+    .maybeSingle(); // Pode não encontrar
+
+  if (mappingError) handleSupabaseError(mappingError, `fetching mapping for logical point ${logicalPointId}`);
+  if (!mappingData) return null;
+
+  // Busca o equipamento (patch panel) associado
+  const { data: equipmentData, error: equipmentError } = await supabase
+    .from('equipments')
+    .select('id, identifier, rack_id')
+    .eq('id', mappingData.patch_panel_id)
+    .single(); // Deve encontrar se o mapeamento existe
+
+  if (equipmentError) handleSupabaseError(equipmentError, `fetching equipment ${mappingData.patch_panel_id} for mapping`);
+  if (!equipmentData) return null; // Inconsistência de dados?
+
+  // Busca o rack associado
+  const { data: rackData, error: rackError } = await supabase
+    .from('racks')
+    .select('id, name')
+    .eq('id', equipmentData.rack_id)
+    .single(); // Deve encontrar
+
+  if (rackError) handleSupabaseError(rackError, `fetching rack ${equipmentData.rack_id} for mapping`);
+  if (!rackData) return null; // Inconsistência de dados?
+
+  // Combina os dados
+  const result: PortMappingDetail = {
+    ...(mappingData as PortMapping),
+    panel_identifier: equipmentData.identifier,
+    rack_id: rackData.id,
+    rack_name: rackData.name,
+  };
+
+  return result;
+};
+
+export const getPortMappingByPhysicalLocation = async (
+  rackId: number,
+  panelIdentifier: string,
+  portNumber: number
+): Promise<PortMapping | null> => {
+   // 1. Encontra o ID do equipamento (patch panel)
+   const { data: equipmentData, error: equipmentError } = await supabase
+     .from('equipments')
+     .select('id')
+     .eq('rack_id', rackId)
+     .eq('identifier', panelIdentifier)
+     .eq('equipment_type', 'PATCH_PANEL')
+     .maybeSingle();
+
+   if (equipmentError) handleSupabaseError(equipmentError, `finding panel ${panelIdentifier} in rack ${rackId}`);
+   if (!equipmentData) return null; // Painel não encontrado
+
+   const patchPanelId = equipmentData.id;
+
+   // 2. Busca o mapeamento usando o ID do painel e o número da porta
+   const { data: mappingData, error: mappingError } = await supabase
+     .from('port_mappings')
+     .select('id, patch_panel_id, physical_port_number, logical_point_identifier, description')
+     .eq('patch_panel_id', patchPanelId)
+     .eq('physical_port_number', portNumber)
+     .maybeSingle();
+
+   if (mappingError) handleSupabaseError(mappingError, `fetching mapping for panel ${patchPanelId} port ${portNumber}`);
+
+   return mappingData as PortMapping | null;
+};
+
+
+export const createPortMapping = async (mapping: Omit<PortMapping, 'id'>): Promise<PortMapping> => {
+  const mappingInsert: PortMappingInsert = {
+      ...mapping,
+      description: mapping.description ?? null,
+  };
+
+  const { data, error } = await supabase
+    .from('port_mappings')
+    .insert(mappingInsert)
+    .select('id, patch_panel_id, physical_port_number, logical_point_identifier, description')
+    .single();
+
+  if (error) handleSupabaseError(error, 'creating port mapping');
+  if (!data) throw new Error("Failed to create port mapping, no data returned.");
+  return data as PortMapping;
+};
+
+export const updatePortMapping = async (id: number, mappingUpdate: Partial<Omit<PortMapping, 'id'>>): Promise<PortMapping> => {
+  const mappingSupabaseUpdate: PortMappingUpdate = { ...mappingUpdate };
+
+  const { data, error } = await supabase
+    .from('port_mappings')
+    .update(mappingSupabaseUpdate)
+    .eq('id', id)
+    .select('id, patch_panel_id, physical_port_number, logical_point_identifier, description')
+    .single();
+
+  if (error) handleSupabaseError(error, `updating port mapping ${id}`);
+  if (!data) throw new Error(`Failed to update port mapping ${id}, no data returned.`);
+  return data as PortMapping;
+};
+
+export const deletePortMapping = async (id: number): Promise<void> => {
+  const { error } = await supabase
+    .from('port_mappings')
+    .delete()
+    .eq('id', id);
+
+  if (error) handleSupabaseError(error, `deleting port mapping ${id}`);
+};
+
+// Funções removidas: initDatabase, createTables, seedDemoData, exportDatabase, importDatabase

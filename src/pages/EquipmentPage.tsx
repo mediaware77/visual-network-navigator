@@ -6,7 +6,7 @@ import { Equipment, Rack, getEquipmentByRackId, getRacks } from "@/lib/db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EquipmentDialog } from "@/components/EquipmentDialog";
-import { Network, Plus, ServerCog } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { EquipmentView } from "@/components/EquipmentView";
 
 const EquipmentPage = () => {
@@ -27,9 +27,9 @@ const EquipmentPage = () => {
     }
   }, [selectedRackId]);
   
-  const loadRacks = () => {
+  const loadRacks = async () => { // Tornar async
     try {
-      const rackList = getRacks();
+      const rackList = await getRacks(); // Usar await
       setRacks(rackList);
       
       if (rackList.length > 0 && !selectedRackId) {
@@ -40,9 +40,9 @@ const EquipmentPage = () => {
     }
   };
   
-  const loadEquipment = (rackId: number) => {
+  const loadEquipment = async (rackId: number) => { // Tornar async
     try {
-      const equipmentList = getEquipmentByRackId(rackId);
+      const equipmentList = await getEquipmentByRackId(rackId); // Usar await
       setEquipment(equipmentList);
     } catch (err) {
       console.error("Error loading equipment:", err);
@@ -67,18 +67,18 @@ const EquipmentPage = () => {
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Equipment</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-display">Equipamentos</h1> {/* Added font-display */}
           <p className="text-muted-foreground">
-            Manage patch panels and switches in your racks
+            Gerencie patch panels e switches em seus racks
           </p>
         </div>
       </div>
       
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Select Rack</CardTitle>
+          <CardTitle>Selecionar Rack</CardTitle>
           <CardDescription>
-            Choose a rack to view and manage its equipment
+            Escolha um rack para visualizar e gerenciar seus equipamentos
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row gap-4 items-start md:items-center">
@@ -89,7 +89,7 @@ const EquipmentPage = () => {
               disabled={racks.length === 0}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a rack" />
+                <SelectValue placeholder="Selecione um rack" />
               </SelectTrigger>
               <SelectContent>
                 {racks.map((rack) => (
@@ -105,8 +105,8 @@ const EquipmentPage = () => {
             onClick={handleAddEquipment} 
             disabled={!selectedRackId}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Equipment
+            <i className="ri-add-line mr-2 h-4 w-4"></i>
+            Adicionar Equipamento
           </Button>
         </CardContent>
       </Card>
@@ -127,15 +127,15 @@ const EquipmentPage = () => {
             <Card>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                  <ServerCog className="h-10 w-10 text-muted-foreground" />
+                  <i className="ri-hard-drive-2-line h-10 w-10 text-muted-foreground"></i>
                 </div>
-                <h2 className="mt-6 text-xl font-semibold">No equipment found</h2>
+                <h2 className="mt-6 text-xl font-semibold">Nenhum equipamento encontrado</h2>
                 <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm mx-auto">
-                  This rack doesn't have any equipment yet. Add patch panels or switches to get started.
+                  Este rack ainda não possui equipamentos. Adicione patch panels ou switches para começar.
                 </p>
                 <Button onClick={handleAddEquipment}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Equipment
+                  <i className="ri-add-line mr-2 h-4 w-4"></i>
+                  Adicionar Equipamento
                 </Button>
               </CardContent>
             </Card>
@@ -152,14 +152,14 @@ const EquipmentPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-8 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-              <Network className="h-10 w-10 text-muted-foreground" />
+              <i className="ri-server-line h-10 w-10 text-muted-foreground"></i> {/* Changed icon */}
             </div>
-            <h2 className="mt-6 text-xl font-semibold">No racks available</h2>
+            <h2 className="mt-6 text-xl font-semibold">Nenhum rack disponível</h2>
             <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm mx-auto">
-              You need to create a rack before you can add equipment. Go to the Racks page to create one.
+              Você precisa criar um rack antes de poder adicionar equipamentos. Vá para a página Racks para criar um.
             </p>
             <Button asChild>
-              <a href="/racks">Go to Racks</a>
+              <a href="/racks">Ir para Racks</a>
             </Button>
           </CardContent>
         </Card>

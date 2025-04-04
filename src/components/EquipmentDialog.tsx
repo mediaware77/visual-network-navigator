@@ -37,10 +37,10 @@ interface EquipmentDialogProps {
 
 const formSchema = z.object({
   equipment_type: z.enum(['PATCH_PANEL', 'SWITCH']),
-  identifier: z.string().min(1, "Identifier is required"),
+  identifier: z.string().min(1, "O identificador é obrigatório"),
   model: z.string().optional(),
-  port_count: z.coerce.number().min(1, "Port count must be at least 1").optional(),
-  u_position: z.coerce.number().min(1, "Position must be at least 1").optional(),
+  port_count: z.coerce.number().min(1, "A contagem de portas deve ser pelo menos 1").optional(),
+  u_position: z.coerce.number().min(1, "A posição deve ser pelo menos 1").optional(),
   description: z.string().optional(),
 });
 
@@ -90,18 +90,20 @@ export function EquipmentDialog({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (isEditing && existingEquipment) {
-        updateEquipment(existingEquipment.id, { ...values, rack_id: rackId });
-        toast.success(`${values.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} updated successfully`);
+        await updateEquipment(existingEquipment.id, { ...values, rack_id: rackId });
+        toast.success(`${values.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} atualizado com sucesso`);
       } else {
-        createEquipment({ ...values, rack_id: rackId });
-        toast.success(`${values.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} created successfully`);
+        // Explicitly cast to satisfy TypeScript, as 'values' guarantees the required fields
+        await createEquipment({ ...values, rack_id: rackId } as Omit<Equipment, 'id'>);
+        toast.success(`${values.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} criado com sucesso`);
       }
-      
+
       onOpenChange(false);
       onSave();
     } catch (error) {
       console.error("Error saving equipment:", error);
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} equipment`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      toast.error(`Falha ao ${isEditing ? 'atualizar' : 'criar'} equipamento: ${errorMessage}`);
     }
   };
   
@@ -110,12 +112,12 @@ export function EquipmentDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? `Edit ${existingEquipment?.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'}` : "Add Equipment"}
+            {isEditing ? `Editar ${existingEquipment?.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'}` : "Adicionar Equipamento"}
           </DialogTitle>
           <DialogDescription>
-            {isEditing 
-              ? "Update the details for this equipment." 
-              : "Enter the details for new rack equipment."}
+            {isEditing
+              ? "Atualize os detalhes deste equipamento."
+              : "Insira os detalhes para o novo equipamento do rack."}
           </DialogDescription>
         </DialogHeader>
         
@@ -126,7 +128,7 @@ export function EquipmentDialog({
               name="equipment_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Equipment Type</FormLabel>
+                  <FormLabel>Tipo de Equipamento</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -139,7 +141,7 @@ export function EquipmentDialog({
                           id="patch_panel" 
                           checked={field.value === 'PATCH_PANEL'} 
                         />
-                        <Label htmlFor="patch_panel">Patch Panel</Label>
+                        <Label htmlFor="patch_panel">Patch Panel</Label> {/* Mantido */}
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem 
@@ -147,7 +149,7 @@ export function EquipmentDialog({
                           id="switch" 
                           checked={field.value === 'SWITCH'} 
                         />
-                        <Label htmlFor="switch">Switch</Label>
+                        <Label htmlFor="switch">Switch</Label> {/* Mantido */}
                       </div>
                     </RadioGroup>
                   </FormControl>
@@ -161,9 +163,9 @@ export function EquipmentDialog({
               name="identifier"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Identifier</FormLabel>
+                  <FormLabel>Identificador</FormLabel>
                   <FormControl>
-                    <Input placeholder="PP-01 or SW-Core" {...field} />
+                    <Input placeholder="ex: PP-01 ou SW-Core" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,9 +177,9 @@ export function EquipmentDialog({
               name="model"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Model</FormLabel>
+                  <FormLabel>Modelo</FormLabel>
                   <FormControl>
-                    <Input placeholder="CAT6 48-Port or Cisco 3850" {...field} />
+                    <Input placeholder="ex: CAT6 48-Portas ou Cisco 3850" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -189,12 +191,12 @@ export function EquipmentDialog({
               name="port_count"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Port Count</FormLabel>
+                  <FormLabel>Contagem de Portas</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
                       min={1} 
-                      placeholder="24" 
+                      placeholder="ex: 24"
                       {...field}
                     />
                   </FormControl>
@@ -208,12 +210,12 @@ export function EquipmentDialog({
               name="u_position"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>U Position (optional)</FormLabel>
+                  <FormLabel>Posição U (opcional)</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
                       min={1} 
-                      placeholder="1" 
+                      placeholder="ex: 1"
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => {
@@ -232,10 +234,10 @@ export function EquipmentDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (optional)</FormLabel>
+                  <FormLabel>Descrição (opcional)</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Optional description" 
+                      placeholder="Descrição opcional"
                       {...field} 
                     />
                   </FormControl>
@@ -246,7 +248,7 @@ export function EquipmentDialog({
             
             <DialogFooter>
               <Button type="submit">
-                {isEditing ? "Update" : "Add"}
+                {isEditing ? "Atualizar" : "Adicionar"}
               </Button>
             </DialogFooter>
           </form>

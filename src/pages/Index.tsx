@@ -2,14 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getRacks, initDatabase, Equipment, getEquipmentByRackId, PortMapping, getPortMappingsByPatchPanelId } from "@/lib/db";
+// Removido initDatabase da importação
+import { getRacks, Equipment, getEquipmentByRackId, PortMapping, getPortMappingsByPatchPanelId } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Network, Server, Cable, AlertTriangle } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 const Index = () => {
-  const [isDbInitialized, setIsDbInitialized] = useState(false);
+  // Removido estado isDbInitialized
   const [stats, setStats] = useState({
     racks: 0,
     equipment: 0,
@@ -17,40 +18,32 @@ const Index = () => {
     switches: 0,
     portMappings: 0,
   });
-  
+
+  // Adicionado useEffect para carregar os dados ao montar
   useEffect(() => {
-    const init = async () => {
-      try {
-        await initDatabase();
-        setIsDbInitialized(true);
-        loadStats();
-      } catch (error) {
-        console.error("Failed to initialize database:", error);
-        toast.error("Failed to initialize database. Please refresh the page.");
-      }
-    };
-    
-    init();
+    loadStats();
   }, []);
   
-  const loadStats = () => {
+  const loadStats = async () => { // Tornar a função async
     try {
-      const racks = getRacks();
+      // Usar await para chamadas assíncronas
+      const racks = await getRacks();
       
       let equipment: Equipment[] = [];
       let portMappings: PortMapping[] = [];
       
-      racks.forEach(rack => {
-        const rackEquipment = getEquipmentByRackId(rack.id);
+      // Usar Promise.all para buscar equipamentos e mapeamentos em paralelo (melhora performance)
+      await Promise.all(racks.map(async (rack) => {
+        const rackEquipment = await getEquipmentByRackId(rack.id);
         equipment = [...equipment, ...rackEquipment];
         
-        rackEquipment.forEach(eq => {
+        await Promise.all(rackEquipment.map(async (eq) => {
           if (eq.equipment_type === 'PATCH_PANEL') {
-            const mappings = getPortMappingsByPatchPanelId(eq.id);
+            const mappings = await getPortMappingsByPatchPanelId(eq.id);
             portMappings = [...portMappings, ...mappings];
           }
-        });
-      });
+        })); // Adicionado ')' para fechar o map interno
+      })); // Adicionado ')' para fechar o map externo
       
       setStats({
         racks: racks.length,
@@ -68,27 +61,27 @@ const Index = () => {
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-display">Painel</h1> {/* Added font-display */}
           <p className="text-muted-foreground">
-            Welcome to Visual Network Mapper
+            Bem-vindo ao Mapeador de Rede Visual
           </p>
         </div>
       </div>
       
-      {isDbInitialized ? (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card>
+      {/* Removida renderização condicional baseada em isDbInitialized */}
+      <>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+          <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Racks
+                  Total de Racks
                 </CardTitle>
-                <Server className="h-4 w-4 text-muted-foreground" />
+                <i className="ri-server-line h-4 w-4 text-muted-foreground"></i>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.racks}</div>
                 <p className="text-xs text-muted-foreground">
-                  Network infrastructure racks
+                  Racks de infraestrutura de rede
                 </p>
               </CardContent>
             </Card>
@@ -96,14 +89,14 @@ const Index = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Patch Panels
+                  Patch Panels {/* Mantido */}
                 </CardTitle>
-                <Network className="h-4 w-4 text-muted-foreground" />
+                <i className="ri-flow-chart h-4 w-4 text-muted-foreground"></i> {/* Changed icon */}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.patchPanels}</div>
                 <p className="text-xs text-muted-foreground">
-                  Passive connectivity panels
+                  Painéis de conectividade passiva
                 </p>
               </CardContent>
             </Card>
@@ -111,14 +104,14 @@ const Index = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Switches
+                  Switches {/* Mantido */}
                 </CardTitle>
-                <Network className="h-4 w-4 text-muted-foreground" />
+                <i className="ri-flow-chart h-4 w-4 text-muted-foreground"></i> {/* Changed icon */}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.switches}</div>
                 <p className="text-xs text-muted-foreground">
-                  Active network switches
+                  Switches de rede ativos
                 </p>
               </CardContent>
             </Card>
@@ -126,14 +119,14 @@ const Index = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Port Mappings
+                  Mapeamentos de Portas
                 </CardTitle>
-                <Cable className="h-4 w-4 text-muted-foreground" />
+                <i className="ri-route-line h-4 w-4 text-muted-foreground"></i>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.portMappings}</div>
                 <p className="text-xs text-muted-foreground">
-                  Mapped logical points
+                  Pontos lógicos mapeados
                 </p>
               </CardContent>
             </Card>
@@ -142,31 +135,31 @@ const Index = () => {
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="md:col-span-1">
               <CardHeader>
-                <CardTitle>Quick Navigation</CardTitle>
+                <CardTitle>Navegação Rápida</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4">
                 <Link to="/racks">
                   <Button className="w-full flex justify-between items-center" variant="outline">
-                    <span>View Racks</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>Ver Racks</span>
+                    <i className="ri-arrow-right-line h-4 w-4"></i>
                   </Button>
                 </Link>
                 <Link to="/equipment">
                   <Button className="w-full flex justify-between items-center" variant="outline">
-                    <span>Manage Equipment</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>Gerenciar Equipamentos</span>
+                    <i className="ri-arrow-right-line h-4 w-4"></i>
                   </Button>
                 </Link>
                 <Link to="/port-mappings">
                   <Button className="w-full flex justify-between items-center" variant="outline">
-                    <span>Port Mappings</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>Mapeamentos de Portas</span>
+                    <i className="ri-arrow-right-line h-4 w-4"></i>
                   </Button>
                 </Link>
                 <Link to="/search">
                   <Button className="w-full flex justify-between items-center" variant="outline">
-                    <span>Search</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span>Buscar</span>
+                    <i className="ri-arrow-right-line h-4 w-4"></i>
                   </Button>
                 </Link>
               </CardContent>
@@ -174,35 +167,26 @@ const Index = () => {
             
             <Card className="md:col-span-1">
               <CardHeader>
-                <CardTitle>About</CardTitle>
+                <CardTitle>Sobre</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Visual Network Mapper helps you identify network points and their physical locations in your infrastructure. Navigate racks, patch panels, and port mappings with ease.
+                  O Mapeador de Rede Visual ajuda você a identificar pontos de rede e suas localizações físicas em sua infraestrutura. Navegue por racks, patch panels e mapeamentos de portas com facilidade.
                 </p>
                 
-                <h4 className="font-semibold mb-2">Key Features:</h4>
+                <h4 className="font-semibold mb-2">Recursos Principais:</h4>
                 <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-                  <li>Visual rack and patch panel representation</li>
-                  <li>Simple port to logical point mapping</li>
-                  <li>Quick search by point ID or physical location</li>
-                  <li>Centralized network documentation</li>
+                  <li>Representação visual de racks e patch panels</li>
+                  <li>Mapeamento simples de porta para ponto lógico</li>
+                  <li>Busca rápida por ID do ponto ou localização física</li>
+                  <li>Documentação de rede centralizada</li>
                 </ul>
               </CardContent>
             </Card>
           </div>
-        </>
-      ) : (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center p-6">
-            <AlertTriangle className="h-12 w-12 text-yellow-500 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Initializing Database</h3>
-            <p className="text-center text-muted-foreground mb-4">
-              Please wait while we initialize the database...
-            </p>
-          </CardContent>
-        </Card>
-      )}
+        {/* Removido div extra */}
+      </>
+      {/* Removido bloco 'else' da renderização condicional */}
     </Layout>
   );
 };

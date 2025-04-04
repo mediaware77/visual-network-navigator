@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Equipment, PortMapping, getPortMappingsByPatchPanelId } from "@/lib/db";
 import { PortGrid } from "./PortGrid";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { PortMappingDialog } from "./PortMappingDialog";
 import { EquipmentDialog } from "./EquipmentDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -35,9 +35,9 @@ export function EquipmentView({
     }
   }, [equipment.id]);
   
-  const loadPortMappings = () => {
+  const loadPortMappings = async () => { // Tornar async
     try {
-      const mappings = getPortMappingsByPatchPanelId(equipment.id);
+      const mappings = await getPortMappingsByPatchPanelId(equipment.id); // Usar await
       setPortMappings(mappings);
     } catch (err) {
       console.error("Error loading port mappings:", err);
@@ -55,19 +55,19 @@ export function EquipmentView({
     setIsEquipmentDialogOpen(true);
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => { // Tornar async
     try {
-      deleteEquipment(equipment.id);
-      toast.success(`${equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} deleted successfully`);
+      await deleteEquipment(equipment.id); // Usar await
+      toast.success(`${equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} excluído com sucesso`);
       onUpdate();
     } catch (err) {
       console.error("Error deleting equipment:", err);
-      toast.error("Failed to delete equipment");
+      toast.error("Falha ao excluir equipamento");
     }
   };
   
   const getEquipmentTypeLabel = () => {
-    return equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch';
+    return equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'; // Mantido
   };
   
   const getPortCount = () => {
@@ -80,28 +80,28 @@ export function EquipmentView({
         <div>
           {getEquipmentTypeLabel()} {equipment.identifier}
           {equipment.model && ` - ${equipment.model}`}
-          {equipment.port_count && ` (${equipment.port_count} ports)`}
+          {equipment.port_count && ` (${equipment.port_count} portas)`}
         </div>
         <div className="flex gap-1">
           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleEdit}>
-            <Edit className="h-3 w-3" />
+            <i className="ri-pencil-line h-3 w-3"></i>
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button size="icon" variant="ghost" className="h-6 w-6">
-                <Trash className="h-3 w-3" />
+                <i className="ri-delete-bin-line h-3 w-3"></i>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will delete the {getEquipmentTypeLabel().toLowerCase()} and all associated port mappings. This action cannot be undone.
+                  Isso excluirá o {getEquipmentTypeLabel().toLowerCase()} e todos os mapeamentos de porta associados. Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

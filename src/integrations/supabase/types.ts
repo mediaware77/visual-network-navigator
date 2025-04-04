@@ -9,7 +9,118 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      equipments: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          equipment_type: string
+          id: number
+          identifier: string
+          model: string | null
+          port_count: number | null
+          rack_id: number
+          u_position: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          equipment_type: string
+          id?: number
+          identifier: string
+          model?: string | null
+          port_count?: number | null
+          rack_id: number
+          u_position?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          equipment_type?: string
+          id?: number
+          identifier?: string
+          model?: string | null
+          port_count?: number | null
+          rack_id?: number
+          u_position?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipments_rack_id_fkey"
+            columns: ["rack_id"]
+            isOneToOne: false
+            referencedRelation: "racks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      port_mappings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          logical_point_identifier: string
+          patch_panel_id: number
+          physical_port_number: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          logical_point_identifier: string
+          patch_panel_id: number
+          physical_port_number: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          logical_point_identifier?: string
+          patch_panel_id?: number
+          physical_port_number?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "port_mappings_patch_panel_id_fkey"
+            columns: ["patch_panel_id"]
+            isOneToOne: false
+            referencedRelation: "equipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      racks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          location: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          location?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          location?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

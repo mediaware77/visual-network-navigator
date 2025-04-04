@@ -36,7 +36,7 @@ interface PortMappingDialogProps {
 }
 
 const formSchema = z.object({
-  logical_point_identifier: z.string().min(1, "Logical point identifier is required"),
+  logical_point_identifier: z.string().min(1, "O identificador do ponto lógico é obrigatório"),
   description: z.string().optional(),
 });
 
@@ -76,46 +76,47 @@ export function PortMappingDialog({
   
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!portNumber) {
-      toast.error("No port selected");
+      toast.error("Nenhuma porta selecionada");
       return;
     }
     
     try {
       if (existingMapping) {
-        updatePortMapping(existingMapping.id, {
+        await updatePortMapping(existingMapping.id, { // Adicionar await
           ...values,
           patch_panel_id: patchPanelId,
           physical_port_number: portNumber,
         });
-        toast.success("Port mapping updated successfully");
+        toast.success("Mapeamento de porta atualizado com sucesso");
       } else {
-        createPortMapping({
+        // Usar asserção de tipo para garantir que 'logical_point_identifier' está presente
+        await createPortMapping({ 
           ...values,
           patch_panel_id: patchPanelId,
           physical_port_number: portNumber,
-        });
-        toast.success("Port mapping created successfully");
+        } as Omit<PortMapping, 'id'>);
+        toast.success("Mapeamento de porta criado com sucesso");
       }
       
       onOpenChange(false);
       onSave();
     } catch (error) {
       console.error("Error saving port mapping:", error);
-      toast.error(`Failed to ${existingMapping ? 'update' : 'create'} port mapping`);
+      toast.error(`Falha ao ${existingMapping ? 'atualizar' : 'criar'} mapeamento de porta`);
     }
   };
   
-  const handleDelete = () => {
+  const handleDelete = async () => { // Tornar async
     if (!existingMapping) return;
     
     try {
-      deletePortMapping(existingMapping.id);
-      toast.success("Port mapping deleted successfully");
+      await deletePortMapping(existingMapping.id); // Adicionar await
+      toast.success("Mapeamento de porta excluído com sucesso");
       onOpenChange(false);
       onSave();
     } catch (error) {
       console.error("Error deleting port mapping:", error);
-      toast.error("Failed to delete port mapping");
+      toast.error("Falha ao excluir mapeamento de porta");
     }
   };
   
@@ -125,13 +126,13 @@ export function PortMappingDialog({
         <DialogHeader>
           <DialogTitle>
             {existingMapping 
-              ? `Edit Port ${portNumber} Mapping` 
-              : `Map Port ${portNumber}`}
+              ? `Editar Mapeamento da Porta ${portNumber}`
+              : `Mapear Porta ${portNumber}`}
           </DialogTitle>
           <DialogDescription>
             {existingMapping 
-              ? "Update the mapping for this port." 
-              : "Create a new mapping for this port."}
+              ? "Atualize o mapeamento para esta porta."
+              : "Crie um novo mapeamento para esta porta."}
           </DialogDescription>
         </DialogHeader>
         
@@ -142,9 +143,9 @@ export function PortMappingDialog({
               name="logical_point_identifier"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Logical Point Identifier</FormLabel>
+                  <FormLabel>Identificador do Ponto Lógico</FormLabel>
                   <FormControl>
-                    <Input placeholder="222" {...field} />
+                    <Input placeholder="ex: 222" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,10 +157,10 @@ export function PortMappingDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (optional)</FormLabel>
+                  <FormLabel>Descrição (opcional)</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Reception desk" 
+                      placeholder="ex: Mesa da recepção"
                       {...field} 
                     />
                   </FormControl>
@@ -173,25 +174,25 @@ export function PortMappingDialog({
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" type="button">
-                      Remove Mapping
+                      Remover Mapeamento
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will remove the mapping for port {portNumber}. This action cannot be undone.
+                        Isso removerá o mapeamento para a porta {portNumber}. Esta ação não pode ser desfeita.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>Remove</AlertDialogAction>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>Remover</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               )}
               <Button type="submit">
-                {existingMapping ? "Update" : "Map"}
+                {existingMapping ? "Atualizar" : "Mapear"}
               </Button>
             </DialogFooter>
           </form>

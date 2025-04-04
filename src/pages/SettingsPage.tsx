@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Info, RotateCw, Settings } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { toast } from "sonner";
 
 const SettingsPage = () => {
@@ -15,26 +15,26 @@ const SettingsPage = () => {
   
   const handleAutoSaveChange = (checked: boolean) => {
     setAutoSave(checked);
-    toast.success(`Auto-save ${checked ? 'enabled' : 'disabled'}`);
+    toast.success(`Salvamento automático ${checked ? 'ativado' : 'desativado'}`);
   };
   
   const handleShowPortTooltipsChange = (checked: boolean) => {
     setShowPortTooltips(checked);
-    toast.success(`Port tooltips ${checked ? 'enabled' : 'disabled'}`);
+    toast.success(`Dicas de porta ${checked ? 'ativadas' : 'desativadas'}`);
   };
   
   const handleEnableAnimationsChange = (checked: boolean) => {
     setEnableAnimations(checked);
-    toast.success(`Animations ${checked ? 'enabled' : 'disabled'}`);
+    toast.success(`Animações ${checked ? 'ativadas' : 'desativadas'}`);
   };
   
   return (
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-display">Configurações</h1> {/* Added font-display */}
           <p className="text-muted-foreground">
-            Manage application preferences and settings
+            Gerencie as preferências e configurações da aplicação
           </p>
         </div>
       </div>
@@ -43,19 +43,19 @@ const SettingsPage = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Application Settings
+              <i className="ri-settings-3-line h-5 w-5"></i>
+              Configurações da Aplicação
             </CardTitle>
             <CardDescription>
-              Customize your experience with Visual Network Mapper
+              Personalize sua experiência com o Mapeador de Rede Visual
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between space-x-2">
               <div className="space-y-0.5">
-                <Label htmlFor="auto-save">Auto-save changes</Label>
+                <Label htmlFor="auto-save">Salvar alterações automaticamente</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically save changes to the database
+                  Salvar automaticamente as alterações no banco de dados
                 </p>
               </div>
               <Switch
@@ -69,9 +69,9 @@ const SettingsPage = () => {
             
             <div className="flex items-center justify-between space-x-2">
               <div className="space-y-0.5">
-                <Label htmlFor="show-tooltips">Show port tooltips</Label>
+                <Label htmlFor="show-tooltips">Mostrar dicas de porta</Label>
                 <p className="text-sm text-muted-foreground">
-                  Display tooltips when hovering over ports
+                  Exibir dicas ao passar o mouse sobre as portas
                 </p>
               </div>
               <Switch
@@ -85,9 +85,9 @@ const SettingsPage = () => {
             
             <div className="flex items-center justify-between space-x-2">
               <div className="space-y-0.5">
-                <Label htmlFor="enable-animations">Enable animations</Label>
+                <Label htmlFor="enable-animations">Ativar animações</Label>
                 <p className="text-sm text-muted-foreground">
-                  Use animations for highlighting and transitions
+                  Usar animações para destaque e transições
                 </p>
               </div>
               <Switch
@@ -102,40 +102,40 @@ const SettingsPage = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              About
+              <i className="ri-information-line h-5 w-5"></i>
+              Sobre
             </CardTitle>
             <CardDescription>
-              Information about Visual Network Mapper
+              Informações sobre o Mapeador de Rede Visual
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-1">Visual Network Mapper (VNM)</h3>
+              <h3 className="font-semibold mb-1">Mapeador de Rede Visual (VNM)</h3>
               <p className="text-sm text-muted-foreground">
-                Version 1.0.0
+                Versão 1.0.0
               </p>
             </div>
             
             <Separator />
             
             <div>
-              <h3 className="font-semibold mb-1">What is VNM?</h3>
+              <h3 className="font-semibold mb-1">O que é o VNM?</h3>
               <p className="text-sm text-muted-foreground">
-                Visual Network Mapper is a tool designed to help network administrators and technicians manage and visualize network infrastructure. It provides a visual representation of racks, patch panels, and port mappings, making it easy to locate physical equipment and logical network points.
+                O Mapeador de Rede Visual é uma ferramenta projetada para ajudar administradores de rede e técnicos a gerenciar e visualizar a infraestrutura de rede. Ele fornece uma representação visual de racks, patch panels e mapeamentos de porta, facilitando a localização de equipamentos físicos e pontos lógicos da rede.
               </p>
             </div>
             
             <Separator />
             
             <div>
-              <h3 className="font-semibold mb-1">Features</h3>
+              <h3 className="font-semibold mb-1">Recursos</h3>
               <ul className="text-sm text-muted-foreground list-disc ml-5 space-y-1">
-                <li>Visual rack and equipment representation</li>
-                <li>Port mapping management</li>
-                <li>Search by logical point or physical location</li>
-                <li>Database export and import for backups</li>
-                <li>Responsive design for desktop and mobile</li>
+                <li>Representação visual de racks e equipamentos</li>
+                <li>Gerenciamento de mapeamento de portas</li>
+                <li>Busca por ponto lógico ou localização física</li>
+                <li>Exportação e importação do banco de dados para backups</li>
+                <li>Design responsivo para desktop e mobile</li>
               </ul>
             </div>
           </CardContent>

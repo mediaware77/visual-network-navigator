@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ServerIcon, Cable, PlusIcon, Edit2, Search } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { PortMappingDialog } from "@/components/PortMappingDialog";
 import { Input } from "@/components/ui/input";
 
@@ -60,9 +60,9 @@ const PortMappingsPage = () => {
     }
   }, [searchQuery, portMappings]);
   
-  const loadRacks = () => {
+  const loadRacks = async () => { // Tornar async
     try {
-      const rackList = getRacks();
+      const rackList = await getRacks(); // Usar await
       setRacks(rackList);
       
       if (rackList.length > 0 && !selectedRackId) {
@@ -73,9 +73,9 @@ const PortMappingsPage = () => {
     }
   };
   
-  const loadPatchPanels = (rackId: number) => {
+  const loadPatchPanels = async (rackId: number) => { // Tornar async
     try {
-      const equipmentList = getEquipmentByRackId(rackId);
+      const equipmentList = await getEquipmentByRackId(rackId); // Usar await
       const panels = equipmentList.filter(eq => eq.equipment_type === 'PATCH_PANEL');
       setPatchPanels(panels);
       
@@ -89,9 +89,9 @@ const PortMappingsPage = () => {
     }
   };
   
-  const loadPortMappings = (panelId: number) => {
+  const loadPortMappings = async (panelId: number) => { // Tornar async
     try {
-      const mappings = getPortMappingsByPatchPanelId(panelId);
+      const mappings = await getPortMappingsByPatchPanelId(panelId); // Usar await
       setPortMappings(mappings);
       setFilteredMappings(mappings);
     } catch (err) {
@@ -141,18 +141,18 @@ const PortMappingsPage = () => {
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Port Mappings</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-display">Mapeamentos de Portas</h1> {/* Added font-display */}
           <p className="text-muted-foreground">
-            Manage logical point to physical port mappings
+            Gerencie os mapeamentos de ponto lógico para porta física
           </p>
         </div>
       </div>
       
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Select Patch Panel</CardTitle>
+          <CardTitle>Selecionar Patch Panel</CardTitle>
           <CardDescription>
-            Choose a rack and patch panel to manage its port mappings
+            Escolha um rack e um patch panel para gerenciar seus mapeamentos de porta
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -164,7 +164,7 @@ const PortMappingsPage = () => {
                 disabled={racks.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a rack" />
+                  <SelectValue placeholder="Selecione um rack" />
                 </SelectTrigger>
                 <SelectContent>
                   {racks.map((rack) => (
@@ -183,7 +183,7 @@ const PortMappingsPage = () => {
                 disabled={patchPanels.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a patch panel" />
+                  <SelectValue placeholder="Selecione um patch panel" />
                 </SelectTrigger>
                 <SelectContent>
                   {patchPanels.map((panel) => (
@@ -202,22 +202,22 @@ const PortMappingsPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
-              <CardTitle>Port Mappings</CardTitle>
+              <CardTitle>Mapeamentos de Portas</CardTitle>
               <CardDescription>
-                Mappings for patch panel {getSelectedPatchPanel()?.identifier}
+                Mapeamentos para o patch panel {getSelectedPatchPanel()?.identifier}
               </CardDescription>
             </div>
             <Button onClick={handleAddMapping}>
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add Mapping
+              <i className="ri-add-line mr-2 h-4 w-4"></i>
+              Adicionar Mapeamento
             </Button>
           </CardHeader>
           <CardContent>
             <div className="flex mb-4">
               <div className="relative w-full max-w-sm">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <i className="ri-search-line absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"></i>
                 <Input
-                  placeholder="Search mappings..."
+                  placeholder="Buscar mapeamentos..."
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -230,10 +230,10 @@ const PortMappingsPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[80px]">Port</TableHead>
-                      <TableHead>Logical Point</TableHead>
-                      <TableHead className="hidden md:table-cell">Description</TableHead>
-                      <TableHead className="w-[100px] text-right">Actions</TableHead>
+                      <TableHead className="w-[80px]">Porta</TableHead>
+                      <TableHead>Ponto Lógico</TableHead>
+                      <TableHead className="hidden md:table-cell">Descrição</TableHead>
+                      <TableHead className="w-[100px] text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -250,8 +250,8 @@ const PortMappingsPage = () => {
                               size="icon"
                               onClick={() => handleEditMapping(mapping.physical_port_number)}
                             >
-                              <Edit2 className="h-4 w-4" />
-                              <span className="sr-only">Edit</span>
+                              <i className="ri-pencil-line h-4 w-4"></i>
+                              <span className="sr-only">Editar</span>
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -262,13 +262,13 @@ const PortMappingsPage = () => {
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                  <Cable className="h-6 w-6 text-muted-foreground" />
+                  <i className="ri-route-line h-6 w-6 text-muted-foreground"></i>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold">No mappings found</h3>
+                <h3 className="mt-4 text-lg font-semibold">Nenhum mapeamento encontrado</h3>
                 <p className="mt-2 text-sm text-muted-foreground max-w-xs">
-                  {searchQuery 
-                    ? 'No mappings match your search criteria.' 
-                    : 'This patch panel has no port mappings yet. Add a mapping to get started.'}
+                  {searchQuery
+                    ? 'Nenhum mapeamento corresponde aos seus critérios de busca.'
+                    : 'Este patch panel ainda não possui mapeamentos de porta. Adicione um mapeamento para começar.'}
                 </p>
                 {searchQuery ? (
                   <Button 
@@ -276,12 +276,12 @@ const PortMappingsPage = () => {
                     className="mt-4"
                     onClick={() => setSearchQuery('')}
                   >
-                    Clear Search
+                    Limpar Busca
                   </Button>
                 ) : (
                   <Button className="mt-4" onClick={handleAddMapping}>
-                    <PlusIcon className="mr-2 h-4 w-4" />
-                    Add First Mapping
+                    <i className="ri-add-line mr-2 h-4 w-4"></i>
+                    Adicionar Primeiro Mapeamento
                   </Button>
                 )}
               </div>
@@ -292,23 +292,23 @@ const PortMappingsPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-8 text-center">
             <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-              <ServerIcon className="h-10 w-10 text-muted-foreground" />
+              <i className="ri-server-line h-10 w-10 text-muted-foreground"></i>
             </div>
             {patchPanels.length === 0 ? (
               <>
-                <h2 className="mt-6 text-xl font-semibold">No patch panels available</h2>
+                <h2 className="mt-6 text-xl font-semibold">Nenhum patch panel disponível</h2>
                 <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm mx-auto">
-                  You need to add a patch panel to the selected rack before you can manage port mappings.
+                  Você precisa adicionar um patch panel ao rack selecionado antes de poder gerenciar mapeamentos de porta.
                 </p>
                 <Button asChild>
-                  <a href="/equipment">Manage Equipment</a>
+                  <a href="/equipment">Gerenciar Equipamentos</a>
                 </Button>
               </>
             ) : (
               <>
-                <h2 className="mt-6 text-xl font-semibold">Select a Patch Panel</h2>
+                <h2 className="mt-6 text-xl font-semibold">Selecione um Patch Panel</h2>
                 <p className="mb-8 mt-2 text-center text-sm text-muted-foreground max-w-sm mx-auto">
-                  Please select a patch panel from the dropdown above to manage its port mappings.
+                  Por favor, selecione um patch panel no menu suspenso acima para gerenciar seus mapeamentos de porta.
                 </p>
               </>
             )}

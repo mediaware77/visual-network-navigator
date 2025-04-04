@@ -5,7 +5,7 @@ import { EquipmentView } from "./EquipmentView";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Server, ServerCog, Settings } from "lucide-react";
+// Lucide icons removed, using Remix Icon classes now
 import { RackDialog } from "./RackDialog";
 import { EquipmentDialog } from "./EquipmentDialog";
 
@@ -23,9 +23,9 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
     loadEquipment();
   }, [rack.id]);
   
-  const loadEquipment = () => {
+  const loadEquipment = async () => { // Tornar async
     try {
-      const equipmentList = getEquipmentByRackId(rack.id);
+      const equipmentList = await getEquipmentByRackId(rack.id); // Usar await
       setEquipment(equipmentList);
     } catch (err) {
       console.error("Error loading equipment:", err);
@@ -45,17 +45,17 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Server className="h-5 w-5 text-network-blue" />
+            <i className="ri-server-line h-5 w-5 text-primary"></i> {/* Changed color class */}
             <CardTitle>{rack.name}</CardTitle>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleAddEquipment}>
-              <ServerCog className="h-4 w-4 mr-2" />
-              Add Equipment
+              <i className="ri-hard-drive-2-line h-4 w-4 mr-2"></i>
+              Adicionar Equipamento
             </Button>
             <Button variant="outline" size="sm" onClick={handleEditRack}>
-              <Settings className="h-4 w-4 mr-2" />
-              Edit Rack
+              <i className="ri-settings-3-line h-4 w-4 mr-2"></i>
+              Editar Rack
             </Button>
           </div>
         </div>
@@ -77,7 +77,7 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
             ))
           ) : (
             <div className="py-8 text-center text-muted-foreground">
-              No equipment in this rack yet. Add equipment to get started.
+              Nenhum equipamento neste rack ainda. Adicione equipamentos para começar.
             </div>
           )}
         </div>

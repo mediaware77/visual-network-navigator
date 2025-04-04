@@ -65,16 +65,16 @@ export function PortGrid({ portCount, mappings, onPortClick, highlightPort }: Po
                   <TooltipContent side="top">
                     {mapping ? (
                       <>
-                        <div><strong>Port:</strong> {portNumber}</div>
-                        <div><strong>Point:</strong> {mapping.logical_point_identifier}</div>
+                        <div><strong>Porta:</strong> {portNumber}</div>
+                        <div><strong>Ponto:</strong> {mapping.logical_point_identifier}</div>
                         {mapping.description && (
-                          <div><strong>Description:</strong> {mapping.description}</div>
+                          <div><strong>Descrição:</strong> {mapping.description}</div>
                         )}
                       </>
                     ) : (
                       <>
-                        <div><strong>Port:</strong> {portNumber}</div>
-                        <div>Not mapped</div>
+                        <div><strong>Porta:</strong> {portNumber}</div>
+                        <div>Não mapeado</div>
                       </>
                     )}
                   </TooltipContent>

@@ -1,48 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Vibrant Pastel Palette */
+    --background: 20 0% 98%; /* Very Light Off-White */
+    --foreground: 20 14% 25%; /* Dark Gray */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 20 14% 25%; /* Dark Gray */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 20 14% 25%; /* Dark Gray */
 
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 174 72% 56%; /* Turquoise */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 16 100% 70%; /* Coral */
+    --secondary-foreground: 20 14% 4%; /* Near Black */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 20 15% 94%; /* Light Gray */
+    --muted-foreground: 20 10% 40%; /* Medium Gray */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 45 100% 60%; /* Yellow-Sun */
+    --accent-foreground: 20 14% 4%; /* Near Black */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 85% 65%; /* Vibrant Red/Pink */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 174 20% 88%; /* Light Turquoise Gray */
+    --input: 174 20% 88%; /* Light Turquoise Gray */
+    --ring: 174 72% 56%; /* Turquoise */
 
-    --radius: 0.5rem;
+    --radius: 0.8rem; /* Increased for a softer look */
 
-    --sidebar-background: 217 33% 17%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 25% 27%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 25%;
-    --sidebar-ring: 224.3 76.3% 48%;
+    /* Sidebar */
+    --sidebar-background: 174 60% 30%; /* Darker Turquoise */
+    --sidebar-foreground: 0 0% 98%; /* Off-White */
+    --sidebar-primary: 45 100% 60%; /* Yellow-Sun */
+    --sidebar-primary-foreground: 20 14% 4%; /* Near Black */
+    --sidebar-accent: 174 50% 40%; /* Lighter Dark Turquoise */
+    --sidebar-accent-foreground: 0 0% 98%; /* Off-White */
+    --sidebar-border: 174 55% 35%; /* Slightly Lighter Dark Turquoise */
+    --sidebar-ring: 174 72% 56%; /* Turquoise */
   }
 
   .dark {
@@ -82,24 +86,28 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
 }
 
 .rack-container {
-  @apply bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-inner;
+  /* Use muted background with some transparency and standard border */
+  @apply bg-muted/50 border border-border rounded-lg p-2 shadow-inner;
 }
 
 .equipment {
-  @apply border border-gray-400 rounded mb-2 overflow-hidden shadow-md;
+  /* Use standard border */
+  @apply border border-border rounded mb-2 overflow-hidden shadow-md;
 }
 
 .patch-panel {
-  @apply bg-gray-200;
+  /* Use muted background */
+  @apply bg-muted;
 }
 
 .switch {
-  @apply bg-network-gray text-white;
+  /* Use secondary color (Coral) for switches */
+  @apply bg-secondary text-secondary-foreground;
 }
 
 .equipment-header {
@@ -107,23 +115,28 @@
 }
 
 .port-grid {
-  @apply grid grid-cols-12 gap-0.5 p-1 bg-white;
+  /* Use card background (currently white) */
+  @apply grid grid-cols-12 gap-0.5 p-1 bg-card;
 }
 
 .port {
-  @apply border text-xs flex items-center justify-center h-6 rounded cursor-pointer transition-colors;
+  /* Use standard border */
+  @apply border border-border text-xs flex items-center justify-center h-6 rounded cursor-pointer transition-colors;
 }
 
 .port-unmapped {
-  @apply bg-gray-100 border-gray-300 hover:bg-gray-200;
+  /* Use muted background, standard border, slightly darker muted on hover */
+  @apply bg-muted/50 border-border hover:bg-muted;
 }
 
 .port-mapped {
-  @apply bg-network-lightBlue text-white border-network-blue hover:bg-network-blue;
+  /* Use primary color (Turquoise), primary foreground, slightly darker border/hover */
+  @apply bg-primary text-primary-foreground border-primary/70 hover:bg-primary/80;
 }
 
 .port-highlight {
-  @apply bg-network-highlight text-black border-yellow-600 animate-pulse;
+  /* Use accent color (Yellow-Sun), accent foreground, slightly darker border */
+  @apply bg-accent text-accent-foreground border-accent/70 animate-pulse;
 }
 
 .port-number {
