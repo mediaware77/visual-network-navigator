@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import PortMappingsPage from "./pages/PortMappingsPage";
 import SearchPage from "./pages/SearchPage";
 import DatabasePage from "./pages/DatabasePage";
 import SettingsPage from "./pages/SettingsPage";
+import NetworkInfoPage from "./pages/NetworkInfoPage"; // Importar a nova página
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +30,7 @@ const App = () => (
           <Route path="/search" element={<SearchPage />} />
           <Route path="/database" element={<DatabasePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/network_info" element={<NetworkInfoPage />} /> {/* Adicionar a nova rota */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

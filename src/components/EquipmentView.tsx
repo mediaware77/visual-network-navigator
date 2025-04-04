@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { Equipment, PortMapping, getPortMappingsByPatchPanelId } from "@/lib/db";
 import { PortGrid } from "./PortGrid";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom"; // Importar Link
 // Lucide icons removed, using Remix Icon classes now
 import { PortMappingDialog } from "./PortMappingDialog";
 import { EquipmentDialog } from "./EquipmentDialog";
@@ -19,8 +19,8 @@ interface EquipmentViewProps {
   } | null;
 }
 
-export function EquipmentView({ 
-  equipment, 
+export function EquipmentView({
+  equipment,
   onUpdate,
   highlightedPort
 }: EquipmentViewProps) {
@@ -28,36 +28,36 @@ export function EquipmentView({
   const [isPortDialogOpen, setIsPortDialogOpen] = useState(false);
   const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
   const [selectedPort, setSelectedPort] = useState<number | null>(null);
-  
+
   useEffect(() => {
     if (equipment.equipment_type === 'PATCH_PANEL') {
       loadPortMappings();
     }
   }, [equipment.id]);
-  
-  const loadPortMappings = async () => { // Tornar async
+
+  const loadPortMappings = async () => {
     try {
-      const mappings = await getPortMappingsByPatchPanelId(equipment.id); // Usar await
+      const mappings = await getPortMappingsByPatchPanelId(equipment.id);
       setPortMappings(mappings);
     } catch (err) {
       console.error("Error loading port mappings:", err);
     }
   };
-  
+
   const handlePortClick = (portNumber: number) => {
     if (equipment.equipment_type === 'PATCH_PANEL') {
       setSelectedPort(portNumber);
       setIsPortDialogOpen(true);
     }
   };
-  
+
   const handleEdit = () => {
     setIsEquipmentDialogOpen(true);
   };
-  
-  const handleDelete = async () => { // Tornar async
+
+  const handleDelete = async () => {
     try {
-      await deleteEquipment(equipment.id); // Usar await
+      await deleteEquipment(equipment.id);
       toast.success(`${equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'} excluído com sucesso`);
       onUpdate();
     } catch (err) {
@@ -65,15 +65,15 @@ export function EquipmentView({
       toast.error("Falha ao excluir equipamento");
     }
   };
-  
+
   const getEquipmentTypeLabel = () => {
-    return equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'; // Mantido
+    return equipment.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch';
   };
-  
+
   const getPortCount = () => {
     return equipment.port_count || 24; // Default to 24 if not specified
   };
-  
+
   return (
     <div className={`equipment ${equipment.equipment_type.toLowerCase()}`}>
       <div className="equipment-header">
@@ -83,12 +83,20 @@ export function EquipmentView({
           {equipment.port_count && ` (${equipment.port_count} portas)`}
         </div>
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleEdit}>
+          {/* Botão Editar */}
+          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleEdit} title="Editar Equipamento">
             <i className="ri-pencil-line h-3 w-3"></i>
           </Button>
+          {/* Botão QR Code */}
+          <Button size="icon" variant="ghost" className="h-6 w-6" asChild title="Ver QR Code">
+            <Link to={`/network_info?equipment_id=${equipment.id}`}>
+              <i className="ri-qr-code-line h-3 w-3"></i>
+            </Link>
+          </Button>
+          {/* Botão Excluir */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-6 w-6">
+              <Button size="icon" variant="ghost" className="h-6 w-6" title="Excluir Equipamento">
                 <i className="ri-delete-bin-line h-3 w-3"></i>
               </Button>
             </AlertDialogTrigger>
@@ -96,7 +104,7 @@ export function EquipmentView({
               <AlertDialogHeader>
                 <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Isso excluirá o {getEquipmentTypeLabel().toLowerCase()} e todos os mapeamentos de porta associados. Esta ação não pode ser desfeita.
+                  Isso excluirá o {getEquipmentTypeLabel().toLowerCase()} {equipment.identifier} e todos os mapeamentos de porta associados (se for um patch panel). Esta ação não pode ser desfeita.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -107,14 +115,14 @@ export function EquipmentView({
           </AlertDialog>
         </div>
       </div>
-      
-      <PortGrid 
+
+      <PortGrid
         portCount={getPortCount()}
         mappings={portMappings}
         onPortClick={handlePortClick}
         highlightPort={highlightedPort?.equipmentId === equipment.id ? highlightedPort.portNumber : undefined}
       />
-      
+
       {equipment.equipment_type === 'PATCH_PANEL' && (
         <PortMappingDialog
           open={isPortDialogOpen}
@@ -125,7 +133,7 @@ export function EquipmentView({
           onSave={loadPortMappings}
         />
       )}
-      
+
       <EquipmentDialog
         open={isEquipmentDialogOpen}
         onOpenChange={setIsEquipmentDialogOpen}
