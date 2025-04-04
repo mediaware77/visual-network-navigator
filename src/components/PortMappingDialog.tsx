@@ -169,11 +169,13 @@ export function PortMappingDialog({
               )}
             />
             
-            <DialogFooter className="gap-2">
+            {/* Responsive footer: stack buttons on small, row on sm+ */}
+            <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               {existingMapping && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" type="button">
+                    {/* Full width on small screens */}
+                    <Button variant="destructive" type="button" className="w-full sm:w-auto">
                       Remover Mapeamento
                     </Button>
                   </AlertDialogTrigger>
@@ -191,7 +193,8 @@ export function PortMappingDialog({
                   </AlertDialogContent>
                 </AlertDialog>
               )}
-              <Button type="submit">
+              {/* Full width on small screens */}
+              <Button type="submit" className="w-full sm:w-auto">
                 {existingMapping ? "Atualizar" : "Mapear"}
               </Button>
             </DialogFooter>

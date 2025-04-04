@@ -93,10 +93,12 @@ const SearchPage = () => {
   
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-6">
+      {/* Responsive header layout: stack on small screens, row on larger screens */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-display">Busca</h1> {/* Added font-display */}
-          <p className="text-muted-foreground">
+          {/* Responsive heading size */}
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-display">Busca</h1> {/* Added font-display */}
+          <p className="text-muted-foreground mt-1"> {/* Added margin-top for spacing */}
             Encontre pontos de rede por ID lógico ou localização física
           </p>
         </div>
@@ -127,7 +129,8 @@ const SearchPage = () => {
             <CardContent className="space-y-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="logicalPointId">Identificador do Ponto Lógico</Label>
-                <div className="flex gap-2">
+                {/* Responsive input/button layout: stack on small, row on sm+ */}
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     id="logicalPointId"
                     placeholder="ex: 222"
@@ -138,8 +141,9 @@ const SearchPage = () => {
                         handleLogicalPointSearch();
                       }
                     }}
+                    className="flex-grow" // Allow input to grow
                   />
-                  <Button onClick={handleLogicalPointSearch}>
+                  <Button onClick={handleLogicalPointSearch} className="w-full sm:w-auto"> {/* Full width on small */}
                     <i className="ri-search-line mr-2 h-4 w-4"></i>
                     Buscar
                   </Button>
@@ -157,7 +161,8 @@ const SearchPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="grid grid-cols-2 gap-4">
+                {/* Responsive grid: 1 col on small, 2 cols on sm+ */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">Rack</Label> {/* Mantido */}
                     <p className="font-medium">{logicalPointResult.rack_name}</p>
@@ -258,7 +263,8 @@ const SearchPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="grid grid-cols-2 gap-4">
+                {/* Responsive grid: 1 col on small, 2 cols on sm+ */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">ID do Ponto Lógico</Label>
                     <p className="font-medium">{physicalLocationResult.logical_point_identifier}</p>

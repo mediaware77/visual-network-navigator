@@ -133,7 +133,7 @@ export function EquipmentDialog({
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex gap-4"
+                      className="flex flex-col sm:flex-row gap-2 sm:gap-4" // Responsive layout: stack on small, row on sm+
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem 

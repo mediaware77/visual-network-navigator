@@ -43,19 +43,22 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
   return (
     <Card className="mb-6">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        {/* Responsive header: stack on small, row on medium+ */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <i className="ri-server-line h-5 w-5 text-primary"></i> {/* Changed color class */}
+            {/* Responsive title size (using Card default for now, adjust if needed) */}
             <CardTitle>{rack.name}</CardTitle>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleAddEquipment}>
-              <i className="ri-hard-drive-2-line h-4 w-4 mr-2"></i>
-              Adicionar Equipamento
+          {/* Responsive buttons: icon only on xs, icon+text on sm+ */}
+          <div className="flex gap-2 self-end sm:self-center"> {/* Align buttons right on small screens */}
+            <Button variant="outline" size="sm" onClick={handleAddEquipment} className="h-8"> {/* Ensure consistent height */}
+              <i className="ri-hard-drive-2-line h-4 w-4 sm:mr-2"></i> {/* Margin only on sm+ */}
+              <span className="hidden sm:inline">Adicionar Equipamento</span> {/* Text hidden on xs */}
             </Button>
-            <Button variant="outline" size="sm" onClick={handleEditRack}>
-              <i className="ri-settings-3-line h-4 w-4 mr-2"></i>
-              Editar Rack
+            <Button variant="outline" size="sm" onClick={handleEditRack} className="h-8"> {/* Ensure consistent height */}
+              <i className="ri-settings-3-line h-4 w-4 sm:mr-2"></i> {/* Margin only on sm+ */}
+              <span className="hidden sm:inline">Editar Rack</span> {/* Text hidden on xs */}
             </Button>
           </div>
         </div>

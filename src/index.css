@@ -111,17 +111,20 @@
 }
 
 .equipment-header {
-  @apply py-1 px-2 font-semibold flex justify-between items-center text-sm;
+  /* Responsive text size */
+  @apply py-1 px-2 font-semibold flex justify-between items-center text-xs sm:text-sm;
 }
 
 .port-grid {
   /* Use card background (currently white) */
-  @apply grid grid-cols-12 gap-0.5 p-1 bg-card;
+  /* Responsive columns: 6 on smallest, 8 on small, 12 on medium and up */
+  @apply grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 gap-0.5 p-1 bg-card;
 }
 
 .port {
   /* Use standard border */
-  @apply border border-border text-xs flex items-center justify-center h-6 rounded cursor-pointer transition-colors;
+  /* Responsive size and text */
+  @apply border border-border text-[10px] sm:text-xs flex items-center justify-center h-7 sm:h-6 rounded cursor-pointer transition-colors relative; /* Added relative positioning for port number */
 }
 
 .port-unmapped {
@@ -140,5 +143,6 @@
 }
 
 .port-number {
-  @apply text-[9px] opacity-75 absolute bottom-0 right-0.5;
+  /* Responsive text size */
+  @apply text-[8px] sm:text-[9px] opacity-75 absolute bottom-0 right-0.5;
 }

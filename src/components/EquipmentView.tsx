@@ -84,20 +84,23 @@ export function EquipmentView({
         </div>
         <div className="flex gap-1">
           {/* Botão Editar */}
-          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={handleEdit} title="Editar Equipamento">
-            <i className="ri-pencil-line h-3 w-3"></i>
+          {/* Responsive button and icon size */}
+          <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" onClick={handleEdit} title="Editar Equipamento">
+            <i className="ri-pencil-line h-4 w-4 sm:h-3 sm:w-3"></i>
           </Button>
           {/* Botão QR Code */}
-          <Button size="icon" variant="ghost" className="h-6 w-6" asChild title="Ver QR Code">
+          {/* Responsive button and icon size */}
+          <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" asChild title="Ver QR Code">
             <Link to={`/network_info?equipment_id=${equipment.id}`}>
-              <i className="ri-qr-code-line h-3 w-3"></i>
+              <i className="ri-qr-code-line h-4 w-4 sm:h-3 sm:w-3"></i>
             </Link>
           </Button>
           {/* Botão Excluir */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-6 w-6" title="Excluir Equipamento">
-                <i className="ri-delete-bin-line h-3 w-3"></i>
+              {/* Responsive button and icon size */}
+              <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" title="Excluir Equipamento">
+                <i className="ri-delete-bin-line h-4 w-4 sm:h-3 sm:w-3"></i>
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
