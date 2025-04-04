@@ -104,13 +104,15 @@ const SearchPage = () => {
       
       <Tabs defaultValue="logical" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="logical" className="flex items-center gap-2">
-            <i className="ri-search-line h-4 w-4"></i>
-            <span>Buscar por Ponto Lógico</span>
+          {/* Alterado para mostrar ícone em mobile e ícone+texto em desktop */}
+          <TabsTrigger value="logical" className="flex items-center gap-2" aria-label="Buscar por Ponto Lógico">
+            <i className="ri-flow-chart h-4 w-4"></i> {/* Ícone representativo */}
+            <span className="hidden sm:inline">Buscar por Ponto Lógico</span> {/* Texto visível a partir de sm */}
           </TabsTrigger>
-          <TabsTrigger value="physical" className="flex items-center gap-2">
-            <i className="ri-map-pin-line h-4 w-4"></i>
-            <span>Buscar por Localização Física</span>
+          {/* Alterado para mostrar ícone em mobile e ícone+texto em desktop */}
+          <TabsTrigger value="physical" className="flex items-center gap-2" aria-label="Buscar por Localização Física">
+            <i className="ri-map-pin-line h-4 w-4"></i> {/* Ícone representativo */}
+            <span className="hidden sm:inline">Buscar por Localização Física</span> {/* Texto visível a partir de sm */}
           </TabsTrigger>
         </TabsList>
         
@@ -193,7 +195,8 @@ const SearchPage = () => {
         <TabsContent value="physical" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Encontrar por Localização Física</CardTitle>
+              {/* Tamanho da fonte reduzido para hierarquia secundária */}
+              <CardTitle className="text-xl">Encontrar por Localização Física</CardTitle>
               <CardDescription>
                 Insira as informações de rack, patch panel e porta para encontrar o ponto lógico
               </CardDescription>
