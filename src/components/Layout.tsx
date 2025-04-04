@@ -26,11 +26,16 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
 
-        {/* Mobile Trigger (fixed top-left) */}
-        {!isMobile && ( // Only show trigger if sidebar is potentially collapsible
-          <div className="md:hidden fixed top-4 left-4 z-50">
+        {/* Mobile Header */}
+        {isMobile && (
+          <header className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 shadow-sm md:hidden">
+            {/* Hamburger Menu Button */}
             <SidebarTrigger />
-          </div>
+            {/* Title */}
+            <h1 className="text-lg font-semibold">VisualNet</h1>
+            {/* Placeholder to balance the trigger button */}
+            <div className="w-8" /> {/* Adjust width if trigger size changes */}
+          </header>
         )}
 
         {/* Desktop Trigger (fixed top, dynamic left) */}
@@ -47,7 +52,8 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex-1 overflow-auto">
           {/* Add padding-left on desktop to avoid overlap with fixed trigger */}
           {/* Adjust padding based on collapsed width + offset + desired gap */}
-          <main className={`p-4 md:p-8 ${!isMobile ? 'md:pl-[calc(3rem+0.5rem+1rem)]' : ''}`}>
+          {/* Increased top padding on mobile (pt-16) to avoid overlap with the fixed mobile trigger */}
+          <main className={`p-4 pt-16 md:pt-8 md:p-8 ${!isMobile ? 'md:pl-[calc(3rem+0.5rem+1rem)]' : ''}`}>
              {children}
           </main>
         </div>
