@@ -82,6 +82,7 @@ export default {
 			   fontFamily: {
 			     sans: ['Poppins', 'sans-serif'],
 			     display: ['Poppins', 'cursive'],
+			        logo: ['MuseoModerno', 'sans-serif'], // Adicionando a fonte da logo
 			   },
 			keyframes: {
 				'accordion-down': {

@@ -64,9 +64,10 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-4 py-3">
-          <i className="ri-router-line w-6 h-6 text-sidebar-primary"></i>
-          <span className="font-medium text-lg text-sidebar-foreground">
-            Mapeador de Rede Visual
+          {/* Ícone pode ser removido ou substituído por um logo SVG se disponível */}
+          {/* <i className="ri-router-line w-6 h-6 text-sidebar-primary"></i> */}
+          <span className="font-logo font-bold text-xl text-sidebar-foreground">
+            VisualNet
           </span>
         </div>
       </SidebarHeader>
@@ -116,8 +117,10 @@ export function AppSidebar() {
       </SidebarContent>
       
       <SidebarFooter className="border-t border-sidebar-border px-4 py-2">
-        <div className="text-xs text-sidebar-foreground/70">
-          Mapeador de Rede Visual v1.0
+        <div className="text-xs text-sidebar-foreground/70 text-center">
+          <span>Mapeador de Rede Visual v1.0</span>
+          <br />
+          <span className="font-logo font-semibold">Mediaware</span>
         </div>
       </SidebarFooter>
     </Sidebar>
