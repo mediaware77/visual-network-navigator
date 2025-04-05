@@ -133,6 +133,7 @@ const SearchPage = () => {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     id="logicalPointId"
+                    key="logicalPointIdInput" // Add a stable key to potentially help mobile focus issues
                     placeholder="ex: 222"
                     value={logicalPointId}
                     onChange={(e) => setLogicalPointId(e.target.value)}
