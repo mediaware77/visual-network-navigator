@@ -109,7 +109,7 @@ export function EquipmentDialog({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent> {/* Removida a classe sm:max-w-[425px] */}
         <DialogHeader>
           <DialogTitle>
             {isEditing ? `Editar ${existingEquipment?.equipment_type === 'PATCH_PANEL' ? 'Patch Panel' : 'Switch'}` : "Adicionar Equipamento"}

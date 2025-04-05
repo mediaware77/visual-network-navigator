@@ -122,7 +122,7 @@ export function PortMappingDialog({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent> {/* Removida a classe sm:max-w-[425px] */}
         <DialogHeader>
           <DialogTitle>
             {existingMapping 
