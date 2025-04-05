@@ -75,8 +75,22 @@ export function EquipmentView({
   };
 
   return (
-    <div className={`equipment ${equipment.equipment_type.toLowerCase()}`}>
-      <div className="equipment-header">
+    <div
+      className={`equipment ${equipment.equipment_type.toLowerCase()} ${
+        equipment.equipment_type === 'PATCH_PANEL' || equipment.equipment_type === 'SWITCH'
+          ? 'rounded-md'
+          : ''
+      }`}
+    >
+      <div
+        className={`equipment-header text-white ${
+          equipment.equipment_type === 'PATCH_PANEL'
+            ? 'bg-gray-400' // Cinza mais claro
+            : equipment.equipment_type === 'SWITCH'
+            ? 'bg-orange-400' // Laranja mais escuro
+            : 'bg-gray-600' // Cor padrão caso não seja nenhum dos tipos
+        }`}
+      >
         <div>
           {getEquipmentTypeLabel()} {equipment.identifier}
           {equipment.model && ` - ${equipment.model}`}

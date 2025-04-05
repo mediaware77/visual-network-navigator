@@ -209,7 +209,7 @@ const PortMappingsPage = () => {
             </div>
             <Button onClick={handleAddMapping}>
               <i className="ri-add-line mr-2 h-4 w-4"></i>
-              Adicionar Mapeamento
+              Mapeamento
             </Button>
           </CardHeader>
           <CardContent>
