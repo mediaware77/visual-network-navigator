@@ -5,14 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"; // Importar Select
+import { useTheme } from "@/components/ThemeProvider"; // Importar useTheme
 // Lucide icons removed, using Remix Icon classes now
 import { toast } from "sonner";
 
 const SettingsPage = () => {
+  const { theme, setTheme } = useTheme(); // Usar o hook useTheme
   const [autoSave, setAutoSave] = React.useState(true);
   const [showPortTooltips, setShowPortTooltips] = React.useState(true);
   const [enableAnimations, setEnableAnimations] = React.useState(true);
-  
+
   const handleAutoSaveChange = (checked: boolean) => {
     setAutoSave(checked);
     toast.success(`Salvamento automático ${checked ? 'ativado' : 'desativado'}`);
@@ -95,6 +98,43 @@ const SettingsPage = () => {
                 checked={enableAnimations}
                 onCheckedChange={handleEnableAnimationsChange}
               />
+            </div>
+
+            <Separator />
+
+            {/* Seção de Tema */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="theme-select" className="flex items-center gap-2">
+                  <i className="ri-contrast-2-line h-4 w-4"></i>
+                  Tema da Interface
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Selecione o tema visual da aplicação.
+                </p>
+              </div>
+              <Select value={theme} onValueChange={(value) => setTheme(value as typeof theme)}>
+                <SelectTrigger className="w-[180px]" id="theme-select">
+                  <SelectValue placeholder="Selecione o tema" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">
+                    <span className="flex items-center gap-2">
+                      <i className="ri-sun-line h-4 w-4"></i> Claro
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="dark">
+                    <span className="flex items-center gap-2">
+                      <i className="ri-moon-line h-4 w-4"></i> Escuro
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="system">
+                    <span className="flex items-center gap-2">
+                      <i className="ri-computer-line h-4 w-4"></i> Sistema
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>

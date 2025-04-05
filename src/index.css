@@ -77,6 +77,16 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+
+    /* Dark Sidebar */
+    --sidebar-background: 222.2 70% 10%; /* Slightly lighter dark blue/gray */
+    --sidebar-foreground: 210 40% 98%; /* Same as main foreground */
+    --sidebar-primary: 217.2 91.2% 59.8%; /* Same as main primary */
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%; /* Same as main primary foreground */
+    --sidebar-accent: 217.2 32.6% 17.5%; /* Same as main accent */
+    --sidebar-accent-foreground: 210 40% 98%; /* Same as main accent foreground */
+    --sidebar-border: 222.2 60% 15%; /* Slightly lighter than sidebar background */
+    --sidebar-ring: 224.3 76.3% 48%; /* Same as main ring */
   }
 }
 
