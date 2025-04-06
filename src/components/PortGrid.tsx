@@ -58,8 +58,8 @@ export function PortGrid({ portCount, mappings, onPortClick, highlightPort }: Po
                       className={getPortClass(portNumber)}
                       onClick={() => onPortClick(portNumber)}
                     >
-                      {mapping ? mapping.logical_point_identifier : ''}
-                      <span className="port-number">{portNumber}</span>
+                      {/* Logical point identifier removed from direct display */}
+                      <span className="port-number text-xs md:text-sm">{portNumber}</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="top">
