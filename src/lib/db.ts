@@ -119,12 +119,30 @@ export const updateRack = async (id: number, rackUpdate: Partial<Omit<Rack, 'id'
 };
 
 export const deleteRack = async (id: number): Promise<void> => {
-  const { error } = await supabase
+  // 1. Verificar se existem equipamentos neste rack
+  // Destrutura 'count' diretamente da resposta
+  const { error: equipmentError, count } = await supabase
+    .from('equipments')
+    .select('id', { count: 'exact', head: true }) // Apenas conta, não busca dados
+    .eq('rack_id', id);
+
+  if (equipmentError) handleSupabaseError(equipmentError, `checking equipment in rack ${id}`);
+
+  // Verifica se a contagem é maior que zero
+  if (count !== null && count > 0) {
+    // Se houver equipamentos, lança um erro específico
+    const errorMessage = `Este rack contém ${count} equipamento(s) e só pode ser excluído após a remoção de todos eles.`;
+    toast.warning(errorMessage); // Mudar para toast.warning para indicar uma condição, não um erro fatal imediato
+    throw new Error(errorMessage); // Interrompe a execução, mas o toast é um aviso
+  }
+
+  // 2. Se não houver equipamentos, prosseguir com a exclusão do rack
+  const { error: deleteError } = await supabase
     .from('racks')
     .delete()
     .eq('id', id);
 
-  if (error) handleSupabaseError(error, `deleting rack ${id}`);
+  if (deleteError) handleSupabaseError(deleteError, `deleting rack ${id}`);
 };
 
 // Equipment

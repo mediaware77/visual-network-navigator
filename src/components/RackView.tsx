@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Equipment, Rack, getEquipmentByRackId } from "@/lib/db";
+import { Equipment, Rack, getEquipmentByRackId, deleteRack } from "@/lib/db"; // Import deleteRack
 import { EquipmentView } from "./EquipmentView";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 // Lucide icons removed, using Remix Icon classes now
 import { RackDialog } from "./RackDialog";
 import { EquipmentDialog } from "./EquipmentDialog";
+import { ConfirmDeleteRackDialog } from "./ConfirmDeleteRackDialog.tsx"; // Importar o novo diálogo (added .tsx)
+import { toast } from "sonner"; // Importar toast para notificações
 
 interface RackViewProps {
   rack: Rack;
@@ -18,6 +20,7 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isRackDialogOpen, setIsRackDialogOpen] = useState(false);
   const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
+  const [isConfirmDeleteDialogOpen, setIsConfirmDeleteDialogOpen] = useState(false); // Estado para o diálogo de confirmação
   
   React.useEffect(() => {
     loadEquipment();
@@ -40,6 +43,27 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
     setIsRackDialogOpen(true);
   };
   
+  const handleDeleteRackClick = () => {
+    setIsConfirmDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteRack(rack.id);
+      toast.success(`Rack "${rack.name}" excluído com sucesso.`);
+      setIsConfirmDeleteDialogOpen(false);
+      onRackUpdate(); // Atualiza a lista na página pai
+    } catch (error) {
+      console.error("Erro ao excluir rack:", error);
+      // Verifica se o erro é a mensagem específica de "rack não vazio"
+      // Se for, o toast.warning já foi exibido em db.ts, então não mostramos outro.
+      if (!(error instanceof Error && error.message.startsWith("Este rack contém"))) {
+        // Se for qualquer outro erro, mostra o toast genérico
+        toast.error("Falha ao excluir o rack. Verifique o console para mais detalhes.");
+      }
+    }
+  };
+  
   return (
     <Card className="mb-6">
       <CardHeader className="pb-2">
@@ -59,6 +83,11 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
             <Button variant="outline" size="sm" onClick={handleEditRack} className="h-8"> {/* Ensure consistent height */}
               <i className="ri-settings-3-line h-4 w-4 sm:mr-2"></i> {/* Margin only on sm+ */}
               <span className="hidden sm:inline">Editar Rack</span> {/* Text hidden on xs */}
+            </Button>
+            {/* Botão Remover Rack */}
+            <Button variant="destructive" size="sm" onClick={handleDeleteRackClick} className="h-8"> {/* Ensure consistent height */}
+              <i className="ri-delete-bin-line h-4 w-4 sm:mr-2"></i> {/* Margin only on sm+ */}
+              <span className="hidden sm:inline">Remover Rack</span> {/* Text hidden on xs */}
             </Button>
           </div>
         </div>
@@ -98,6 +127,13 @@ export function RackView({ rack, onRackUpdate }: RackViewProps) {
         onOpenChange={setIsEquipmentDialogOpen} 
         rackId={rack.id}
         onSave={loadEquipment}
+      />
+      
+      <ConfirmDeleteRackDialog
+        open={isConfirmDeleteDialogOpen}
+        onOpenChange={setIsConfirmDeleteDialogOpen}
+        rackName={rack.name}
+        onConfirm={handleConfirmDelete}
       />
     </Card>
   );
