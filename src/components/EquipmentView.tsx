@@ -134,6 +134,7 @@ export function EquipmentView({
       </div>
 
       <PortGrid
+        // equipmentId={equipment.id} // REMOVED - Prop no longer exists on PortGrid
         portCount={getPortCount()}
         mappings={portMappings}
         onPortClick={handlePortClick}

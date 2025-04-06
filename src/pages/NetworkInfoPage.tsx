@@ -15,11 +15,11 @@ const NetworkInfoPage: React.FC = () => {
   const [rack, setRack] = useState<Rack | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [pageUrl, setPageUrl] = useState<string>(''); // State to hold the URL
+  // const [pageUrl, setPageUrl] = useState<string>(''); // State to hold the URL - REMOVED
 
   useEffect(() => {
-    // Set the URL once the component mounts and window is available
-    setPageUrl(window.location.href);
+    // Set the URL once the component mounts and window is available - REMOVED
+    // setPageUrl(window.location.href);
 
     const fetchNetworkInfo = async () => {
       setLoading(true);
@@ -107,15 +107,16 @@ const NetworkInfoPage: React.FC = () => {
         {/* Placeholder para o QR Code */}
         <div className="mt-6 pt-4 border-t text-center">
            <h3 className="text-lg font-semibold mb-3">QR Code</h3>
-           {pageUrl ? ( // Only render QR code if URL is set
+           {equipmentId ? ( // Only render QR code if equipmentId is available
              <div className="inline-block p-2 border rounded-md bg-white">
-               <QRCodeCanvas value={pageUrl} size={160} level="H" includeMargin={false} /> {/* Usar QRCodeCanvas */}
+               {/* Pass equipmentId as the value for the QR code */}
+               <QRCodeCanvas value={equipmentId} size={160} level="H" includeMargin={false} />
              </div>
            ) : (
-             <Skeleton className="inline-block h-[164px] w-[164px] p-2 border rounded-md" /> // Placeholder if URL not ready
+             <Skeleton className="inline-block h-[164px] w-[164px] p-2 border rounded-md" /> // Placeholder if ID not available
            )}
-           <p className="text-sm text-muted-foreground mt-2">Escaneie para acessar esta página.</p>
-           {pageUrl && <p className="text-xs text-muted-foreground mt-1 break-all">URL: {pageUrl}</p>}
+           <p className="text-sm text-muted-foreground mt-2">QR Code para identificação do equipamento.</p>
+           {/* Removed URL display */}
         </div>
       </div>
     );
