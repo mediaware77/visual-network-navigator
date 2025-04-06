@@ -162,7 +162,7 @@ export function PortMappingDialog({
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
           <QRCodeCanvas
             ref={qrCodeRef} // Assign the ref here
-            value={`${patchPanelId}:${portNumber}`}
+            value={`${window.location.origin}/port-info/${patchPanelId}/${portNumber}`}
             size={256} // Good size for download
             level="H"
             includeMargin={true}

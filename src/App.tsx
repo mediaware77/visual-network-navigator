@@ -13,6 +13,7 @@ import DatabasePage from "./pages/DatabasePage";
 import SettingsPage from "./pages/SettingsPage";
 import NetworkInfoPage from "./pages/NetworkInfoPage"; // Importar a nova página
 import NotFound from "./pages/NotFound";
+import { PortInfoPage } from "./pages/PortInfoPage"; // Importar a nova página de informações da porta
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,8 @@ const App = () => (
           <Route path="/search" element={<SearchPage />} />
           <Route path="/database" element={<DatabasePage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/network_info" element={<NetworkInfoPage />} /> {/* Adicionar a nova rota */}
+          <Route path="/network_info" element={<NetworkInfoPage />} />
+          <Route path="/port-info/:patchPanelId/:portNumber" element={<PortInfoPage />} /> {/* Rota para a página de informações da porta */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
