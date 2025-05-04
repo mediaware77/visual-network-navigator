@@ -110,7 +110,7 @@ const NetworkInfoPage: React.FC = () => {
            {equipmentId ? ( // Only render QR code if equipmentId is available
              <div className="inline-block p-2 border rounded-md bg-white">
                {/* Pass equipmentId as the value for the QR code */}
-               <QRCodeCanvas value={equipmentId} size={160} level="H" includeMargin={false} />
+               <QRCodeCanvas value={`${window.location.origin}/network_info?equipment_id=${equipmentId}`} size={160} level="H" includeMargin={false} />
              </div>
            ) : (
              <Skeleton className="inline-block h-[164px] w-[164px] p-2 border rounded-md" /> // Placeholder if ID not available
