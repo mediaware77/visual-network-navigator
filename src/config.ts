@@ -1,11 +1,23 @@
 /**
- * Configuração para ativar/desativar páginas do sistema.
- * Cada chave representa o nome de uma página, e o valor ('on' ou 'off') determina sua disponibilidade.
+ * ARQUIVO DE CONFIGURAÇÃO DO SISTEMA VISUAL NETWORK NAVIGATOR
+ * ==========================================================
  * 
- * Para modificar a disponibilidade das páginas:
- * 1. Abra este arquivo em um editor de texto
- * 2. Altere o valor de qualquer entrada de página para 'on' ou 'off'
- * 3. Salve o arquivo - as mudanças terão efeito imediato sem necessidade de recompilação
+ * Este arquivo pode ser editado manualmente após o deploy para ativar ou desativar
+ * funcionalidades do sistema sem necessidade de recompilação.
+ * 
+ * INSTRUÇÕES PARA EDIÇÃO MANUAL EM PRODUÇÃO:
+ * -----------------------------------------
+ * 1. Localize este arquivo no diretório 'dist' após o build (config.js)
+ * 2. Abra-o em qualquer editor de texto simples (Notepad, VS Code, etc.)
+ * 3. Altere os valores conforme necessário (apenas 'on' ou 'off')
+ * 4. Salve o arquivo e atualize a página do navegador
+ * 5. As alterações terão efeito imediato sem necessidade de recompilação
+ * 
+ * IMPORTANTE:
+ * - Mantenha a estrutura exata do arquivo
+ * - Não altere os nomes das propriedades
+ * - Use apenas os valores 'on' ou 'off'
+ * - Não remova os comentários, eles servem como documentação
  */
 export const PageConfig = {
   // Página de Racks - /racks

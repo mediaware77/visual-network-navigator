@@ -2,8 +2,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { HomeIcon } from "lucide-react";
 import { Layout } from "@/components/Layout";
+// Removido import do HomeIcon do lucide-react, usando Remix Icons via CSS
 
 const NotFound = () => {
   const location = useLocation();
@@ -18,15 +18,18 @@ const NotFound = () => {
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh]">
+        <div className="mb-6">
+          <i className="ri-error-warning-line text-8xl text-network-lightBlue"></i>
+        </div>
         <h1 className="text-9xl font-bold text-network-lightBlue">404</h1>
-        <h2 className="text-2xl md:text-3xl font-semibold mt-4 mb-2">Page Not Found</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold mt-4 mb-2">Página Não Encontrada</h2>
         <p className="text-muted-foreground mb-8 text-center max-w-md">
-          We couldn't find the page you're looking for. The link might be incorrect or the page may have been moved.
+          Não conseguimos encontrar a página que você está procurando. O link pode estar incorreto ou a página pode ter sido movida.
         </p>
         <Button asChild>
           <a href="/">
-            <HomeIcon className="mr-2 h-4 w-4" />
-            Return to Home
+            <i className="ri-home-line mr-2 h-4 w-4"></i>
+            Voltar para Início
           </a>
         </Button>
       </div>
