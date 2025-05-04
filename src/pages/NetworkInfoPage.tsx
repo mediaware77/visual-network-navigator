@@ -99,7 +99,7 @@ const NetworkInfoPage: React.FC = () => {
 
     return (
       <div className="space-y-2">
-        <p><strong>ID:</strong> {equipment.id}</p>
+        <p><strong>ID:</strong> <a href="/port-info/123/456" target="_blank" rel="noopener noreferrer">{equipment.id}</a></p>
         <p><strong>Identificador:</strong> {equipment.identifier}</p>
         <p><strong>Tipo:</strong> {equipment.equipment_type}</p>
         <p><strong>Modelo:</strong> {equipment.model || 'N/A'}</p>

@@ -240,7 +240,11 @@ const PortMappingsPage = () => {
                     {filteredMappings
                       .sort((a, b) => a.physical_port_number - b.physical_port_number)
                       .map((mapping) => (
-                        <TableRow key={mapping.id}>
+                        <TableRow
+                          key={mapping.id}
+                          onClick={() => window.open(`/port-info/${selectedPanelId}/${mapping.physical_port_number}`, '_blank')}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <TableCell className="font-medium">{mapping.physical_port_number}</TableCell>
                           <TableCell>{mapping.logical_point_identifier}</TableCell>
                           <TableCell className="hidden md:table-cell">{mapping.description || '—'}</TableCell>
@@ -248,7 +252,10 @@ const PortMappingsPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleEditMapping(mapping.physical_port_number)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditMapping(mapping.physical_port_number);
+                              }}
                             >
                               <i className="ri-pencil-line h-4 w-4"></i>
                               <span className="sr-only">Editar</span>

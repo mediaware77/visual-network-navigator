@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { PageConfig } from "./config"; // Import PageConfig
 import Index from "./pages/Index";
 import RacksPage from "./pages/RacksPage";
 import EquipmentPage from "./pages/EquipmentPage";
@@ -25,14 +26,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/racks" element={<RacksPage />} />
-          <Route path="/equipment" element={<EquipmentPage />} />
-          <Route path="/port-mappings" element={<PortMappingsPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/database" element={<DatabasePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/network_info" element={<NetworkInfoPage />} />
-          <Route path="/port-info/:patchPanelId/:portNumber" element={<PortInfoPage />} /> {/* Rota para a página de informações da porta */}
+          {PageConfig.RacksPage === 'on' && <Route path="/racks" element={<RacksPage />} />}
+          {PageConfig.EquipmentPage === 'on' && <Route path="/equipment" element={<EquipmentPage />} />}
+          {PageConfig.PortMappingsPage === 'on' && <Route path="/port-mappings" element={<PortMappingsPage />} />}
+          {PageConfig.SearchPage === 'on' && <Route path="/search" element={<SearchPage />} />}
+          {PageConfig.DatabasePage === 'on' && <Route path="/database" element={<DatabasePage />} />}
+          {PageConfig.SettingsPage === 'on' && <Route path="/settings" element={<SettingsPage />} />}
+          {PageConfig.NetworkInfoPage === 'on' && <Route path="/network_info" element={<NetworkInfoPage />} />}
+          {PageConfig.PortInfoPage === 'on' && <Route path="/port-info/:patchPanelId/:portNumber" element={<PortInfoPage />} />} {/* Rota para a página de informações da porta */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
